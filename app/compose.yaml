@@ -1,0 +1,19 @@
+# Vlož do TrueNAS: Apps > Discover Apps > ⋮ > Install via YAML
+services:
+  journey:
+    image: ghcr.io/cpt-raccoon/programming-journey:latest
+    pull_policy: always
+    ports:
+      - "8380:8080"
+    restart: "no"
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:exec,size=256m
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETUID, SETGID, DAC_OVERRIDE, FOWNER, KILL]
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 1g
+    cpus: 2

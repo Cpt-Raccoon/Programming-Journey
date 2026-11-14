@@ -130,6 +130,7 @@ textarea.bk{width:100%;min-height:70px;background:#0b0e20;color:#cfe;border:2px 
 .small{font-size:13px;color:var(--mut)}
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--card2);border:2px solid var(--acc);padding:10px 16px;border-radius:12px;z-index:70;font-weight:600;display:none}
 .switch{display:flex;align-items:center;gap:8px;font-size:14px}
+body.srv .only-jscpp{display:none}body:not(.srv) .only-server{display:none}
 </style>
 </head>
 <body>
@@ -209,7 +210,27 @@ function mkWorker(){
   worker=new Worker(url);
   worker.onmessage=e=>{if(pending&&e.data.id===pending.id){clearTimeout(pending.t);const p=pending;pending=null;p.res(e.data);}};
 }
-function runCpp(code,input){
+// Když stránka běží ze serveru Programming Journey (TrueNAS), kód se překládá skutečným g++.
+// Jinak (samostatný soubor, artifact) se použije JSCPP v prohlížeči.
+let serverMode=null;
+async function hasServer(){
+  if(serverMode!==null)return serverMode;
+  if(location.protocol==='file:'){serverMode=false;return false;}
+  try{const r=await fetch('api/health',{cache:'no-store'});serverMode=r.ok&&(await r.json()).ok===true;}catch(e){serverMode=false;}
+  return serverMode;
+}
+async function runCpp(code,input){
+  if(await hasServer()){
+    try{
+      const r=await fetch('api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lang:'cpp',code,input:input||''})});
+      const d=await r.json();
+      if(!d.ok&&d.phase==='compile'&&d.err!=='TIMEOUT')d.err='GXX:'+d.err;
+      return d;
+    }catch(e){return {ok:false,out:'',err:'Server neodpovídá: '+e.message};}
+  }
+  return runJscpp(code,input);
+}
+function runJscpp(code,input){
   return new Promise(res=>{
     if(!worker)mkWorker();
     const id=++seq;
@@ -221,6 +242,10 @@ function runCpp(code,input){
 function prettyErr(e){
   if(e==='TIMEOUT'||/time limit|timeout/i.test(e))return '⏱️ Program běžel moc dlouho (víc než 3 s). Nemáš nekonečný cyklus?';
   let m;
+  if(e.startsWith('GXX:')){
+    const g=e.slice(4),first=/main\.cpp:(\d+):(\d+): error: (.*)/.exec(g);
+    return (first?`🧱 Chyba překladu na řádku ${first[1]}, sloupec ${first[2]}: ${first[3]}\n\n`:'🧱 Chyba překladu:\n\n')+g.trim();
+  }
   if((m=/Parsing Failure:\s*\n?line (\d+) \(column (\d+)\)/.exec(e))){
     const exp=/Expected (.*?) but/.exec(e);
     return `🧱 Syntaktická chyba na řádku ${m[1]}, sloupec ${m[2]}.\nZkontroluj středníky ; , závorky ( ) { } a uvozovky " ".`+(exp?'':'');
@@ -286,7 +311,7 @@ function viewMap(){
     });
     h+=`</div></div>`;
   });
-  h+=`</div><div class="bonus"><h3 class="pix">🖥️ Bonus: C++ na tvém PC</h3>
+  h+=`</div><div class="bonus only-jscpp"><h3 class="pix">🖥️ Bonus: C++ na tvém PC</h3>
   <p class="small" style="margin:0">Tenhle web běží na zjednodušeném interpretu (umí základy, funkce, pole, ukazatele). Na <code>string</code>, <code>vector</code>, třídy a velké projekty si nainstaluj skutečný kompilátor:</p>
   <ul class="small"><li><b>Windows:</b> Visual Studio Community (zdarma) nebo MSYS2 + g++</li><li><b>Linux / Raspberry Pi:</b> <code>sudo apt install g++</code>, pak <code>g++ main.cpp -o main &amp;&amp; ./main</code></li><li><b>Editor:</b> VS Code + rozšíření C/C++</li></ul></div>`;
   app.innerHTML=h;
@@ -389,7 +414,9 @@ function viewSandbox(){
    <div class="ed" style="margin-top:10px"><div class="io"><label>Vstup (stdin)</label><textarea id="stdin" placeholder="Vstup pro cin…">${esc(S.sbIn||'')}</textarea></div></div>
    <div class="btns"><button class="b run" id="bRun">▶ Spustit</button><button class="b gh" id="bReset">↺ Výchozí</button></div></div>
    <div><div class="out" id="out" style="min-height:200px"><div class="h">KONZOLE</div></div>
-   <div class="card" style="margin-top:14px"><h2 class="pix" style="font-size:10px">Co interpret umí</h2>
+   <div class="card only-server" style="margin-top:14px"><h2 class="pix" style="font-size:10px">Skutečný g++</h2>
+   <p class="small" style="margin:0">Kód se překládá na serveru přes g++ (C++17), takže funguje i <code>string</code>, <code>vector</code>, třídy, reference a <code>new</code>. Program smí běžet nejvýš 3 s.</p></div>
+   <div class="card only-jscpp" style="margin-top:14px"><h2 class="pix" style="font-size:10px">Co interpret umí</h2>
    <p class="small" style="margin:0">✅ <code>iostream</code>, <code>cmath</code>, <code>cstring</code>, <code>cstdio</code>, proměnné, if/switch, cykly, funkce, rekurze, pole, 2D pole, ukazatele.<br>❌ <code>string</code>, <code>vector</code>, <code>class/struct</code>, reference <code>int&amp;</code>, <code>new</code>. Na ty použij g++ na PC.</p></div></div></div>`;
   const host=document.getElementById('edhost');
   const ed=editor(host,S.sb!=null?S.sb:def,v=>{S.sb=v;save();},'piskoviste.cpp');
@@ -449,6 +476,7 @@ function route(){
 }
 addEventListener('hashchange',route);
 hud();route();
+hasServer().then(ok=>{if(ok)document.body.classList.add('srv');});
 })();
 </script>
 </body>
