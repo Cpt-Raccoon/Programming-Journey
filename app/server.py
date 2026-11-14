@@ -131,6 +131,9 @@ def run_code(lang, code, stdin):
 
 
 class Handler(SimpleHTTPRequestHandler):
+    extensions_map = {**SimpleHTTPRequestHandler.extensions_map,
+                      ".webmanifest": "application/manifest+json", ".svg": "image/svg+xml"}
+
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=STATIC_DIR, **kw)
 
