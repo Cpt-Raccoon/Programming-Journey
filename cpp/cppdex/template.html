@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>C++dex – nauč se C++</title>
+<title>{Programming Journey}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -25,7 +25,7 @@ button{font:inherit;cursor:pointer;border:0;border-radius:10px}
 /* top bar */
 .top{position:sticky;top:0;z-index:20;background:#0f1226ee;backdrop-filter:blur(8px);border-bottom:2px solid var(--line)}
 .top .in{max-width:1100px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;gap:12px}
-.logo{font-family:'Press Start 2P',monospace;font-size:15px;color:var(--acc);text-decoration:none;white-space:nowrap;text-shadow:3px 3px 0 #b8541f}
+.logo{font-family:'Press Start 2P',monospace;font-size:19px;color:var(--acc);text-decoration:none;white-space:nowrap;text-shadow:3px 3px 0 #b8541f}
 .nav{display:flex;gap:6px;margin-left:auto}
 .nav a{color:var(--mut);text-decoration:none;font-weight:600;font-size:14px;padding:6px 10px;border-radius:8px}
 .nav a.on,.nav a:hover{background:var(--card);color:var(--tx)}
@@ -75,8 +75,8 @@ button{font:inherit;cursor:pointer;border:0;border-radius:10px}
 .edbar .f{font-family:var(--mono)}
 .edbar .dots i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
 .code{position:relative;display:flex;min-height:260px}
-.gut{flex:none;padding:12px 8px 12px 10px;text-align:right;color:#4b5196;font-family:var(--mono);font-size:14px;line-height:21px;user-select:none;white-space:pre;overflow:hidden;background:#0d1028}
-textarea.src{flex:1;min-height:260px;resize:vertical;background:transparent;color:#e6e9ff;border:0;outline:0;padding:12px;font-family:var(--mono);font-size:14px;line-height:21px;white-space:pre;overflow:auto;tab-size:4;caret-color:var(--acc)}
+.gut{flex:none;padding:12px 8px 12px 10px;text-align:right;color:#4b5196;font-family:var(--mono);font-size:.875rem;line-height:1.5;user-select:none;white-space:pre;overflow:hidden;background:#0d1028}
+textarea.src{flex:1;min-height:260px;resize:vertical;background:transparent;color:#e6e9ff;border:0;outline:0;padding:12px;font-family:var(--mono);font-size:.875rem;line-height:1.5;white-space:pre;overflow:auto;tab-size:4;caret-color:var(--acc)}
 .io{display:grid;grid-template-columns:1fr;gap:0;border-top:2px solid var(--line)}
 .io label{display:block;font-size:11px;color:var(--mut);padding:6px 12px 0;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
 .io textarea{width:100%;background:transparent;color:#cfe;border:0;outline:0;font-family:var(--mono);font-size:13px;padding:4px 12px 10px;resize:vertical;min-height:38px}
@@ -131,11 +131,96 @@ textarea.bk{width:100%;min-height:70px;background:#0b0e20;color:#cfe;border:2px 
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--card2);border:2px solid var(--acc);padding:10px 16px;border-radius:12px;z-index:70;font-weight:600;display:none}
 .switch{display:flex;align-items:center;gap:8px;font-size:14px}
 body.srv .only-jscpp{display:none}body:not(.srv) .only-server{display:none}
+
+/* brand */
+.logo .br{color:var(--blue);text-shadow:3px 3px 0 #1c4f8a}
+@media(max-width:700px){.logo{font-size:13px}}
+.gear{background:var(--card);color:var(--tx);width:36px;height:36px;font-size:17px;border:2px solid var(--line)}
+.pop{position:fixed;top:64px;right:14px;z-index:40;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:14px 16px;width:min(340px,calc(100vw - 28px));display:grid;gap:12px;box-shadow:0 8px 0 #0a0c1d}
+.pop[hidden]{display:none}
+.pop-h{font-family:'Press Start 2P',monospace;font-size:10px;color:var(--acc)}
+.pop-r{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px}
+.b.sm{padding:6px 10px;font-size:13px}
+body.calm{background-image:none}
+body.calm *{animation:none!important;transition:none!important}
+body.nogame .lvl,body.nogame .xpbar,body.nogame #xptx,body.nogame .streak,body.nogame .xpchip{display:none!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* lesson workspace (rozložení: vlevo výklad, vpravo editor a terminál) */
+body.ws .wrap{max-width:none;padding:0}
+body.ws .top .in{max-width:none}
+.lw{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);height:calc(100vh - 62px - 64px)}
+.lw>.left{overflow:auto;border-right:2px solid var(--line);padding:0 0 24px}
+.lw>.right{display:flex;flex-direction:column;min-height:0;background:#0b0e20}
+.lhead{position:sticky;top:0;z-index:2;background:var(--bg2);border-bottom:2px solid var(--line);padding:10px 20px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--mut)}
+.lhead b{color:var(--tx)}
+.wbar{flex:1;max-width:220px;height:10px;background:#0b0e20;border:2px solid var(--line);border-radius:6px;overflow:hidden}
+.wbar i{display:block;height:100%;background:var(--ok)}
+.sec{padding:16px 20px;border-bottom:2px solid var(--line)}
+.sec:last-child{border-bottom:0}
+.sec>h2{font-family:Inter,sans-serif;font-size:13px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mut);margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.ltitle{font-family:'Press Start 2P',monospace;font-size:clamp(14px,2vw,18px);line-height:1.6;margin:0 0 4px}
+.theory p{margin:0 0 12px;max-width:68ch}
+.theory p:last-child{margin-bottom:0}
+.goal{background:linear-gradient(180deg,#2a2a3e,#1e2346);border:2px solid #ffd43b99;border-radius:14px;padding:14px 16px}
+.goal .what{font-size:17px;font-weight:600;line-height:1.5}
+.steps{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.steps li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:#0b0e2066;border:2px solid transparent;font-size:15px}
+.steps li .n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:#0b0e20;border:2px solid var(--line)}
+.steps li.now{border-color:var(--acc);background:#ffd43b14}
+.steps li.now .n{border-color:var(--acc);color:var(--acc)}
+.steps li.ok{color:var(--mut)}
+.steps li.ok .n{background:var(--ok);border-color:var(--ok);color:#06210d}
+.expect{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.expect .box{background:#0b0e20;border:2px solid var(--line);border-radius:10px;padding:8px 10px}
+.expect .box .k{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.expect pre{margin:0;border:0;padding:0;background:none}
+details.acc{background:var(--card);border:2px solid var(--line);border-radius:12px;margin-top:10px}
+details.acc>summary{cursor:pointer;list-style:none;padding:12px 14px;font-weight:600;display:flex;align-items:center;gap:10px}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary::after{content:'▾';margin-left:auto;color:var(--mut)}
+details.acc[open]>summary::after{content:'▴'}
+details.acc>div{padding:0 14px 14px}
+details.acc.lockd>summary{opacity:.55;cursor:not-allowed}
+.right .ed{border:0;border-radius:0;flex:1;display:flex;flex-direction:column;min-height:0}
+.right .code{flex:1;min-height:0}
+.right textarea.src{resize:none;min-height:0}
+.right .gut{overflow:hidden}
+.actbar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#13173a;border-top:2px solid var(--line);border-bottom:2px solid var(--line);flex-wrap:wrap}
+.actbar .sp{flex:1}
+.term{height:38%;min-height:150px;display:flex;flex-direction:column;background:#06081a}
+.term .th{display:flex;align-items:center;gap:8px;padding:8px 12px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);border-bottom:2px solid var(--line)}
+.term .tb{flex:1;overflow:auto;padding:10px 12px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;word-break:break-word}
+.term .empty{color:var(--mut);font-family:Inter,sans-serif;text-align:center;margin-top:20px}
+.stdinrow{display:flex;align-items:flex-start;gap:8px;padding:6px 12px;border-top:2px solid var(--line);background:#0d1028}
+.stdinrow label{font-size:11px;font-weight:700;color:var(--mut);padding-top:6px;white-space:nowrap}
+.stdinrow textarea{flex:1;background:transparent;color:#cfe;border:0;outline:0;font-family:var(--mono);font-size:13px;resize:vertical;min-height:30px;padding:5px 0}
+.verdict{margin-top:10px;padding:10px 12px;border-radius:10px;font-family:Inter,sans-serif;font-weight:600}
+.verdict.good{background:#0f2a18;border:2px solid #2b8a3e;color:#b2f2bb}
+.verdict.bad{background:#2c1015;border:2px solid #c92a2a;color:#ffc9c9}
+.botbar{position:fixed;left:0;right:0;bottom:0;height:64px;z-index:20;background:var(--bg2);border-top:2px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 16px}
+.botbar .lt{display:flex;flex-direction:column;line-height:1.3}
+.botbar .lt b{font-size:15px}
+.botbar .lt span{font-size:12px;color:var(--mut)}
+.xpchip{font-size:11px;font-weight:700;background:#0b0e20;border:1px solid var(--line);border-radius:6px;padding:1px 6px;margin-left:6px;color:var(--acc)}
+.botbar .sp{flex:1}
+.ib{background:var(--card);color:var(--tx);border:2px solid var(--line);width:42px;height:42px;font-size:18px;display:grid;place-items:center;text-decoration:none;border-radius:10px}
+.dots5{display:flex;gap:5px}
+.dots5 i{width:10px;height:10px;border-radius:50%;background:#0b0e20;border:2px solid var(--line)}
+.dots5 i.d{background:var(--ok);border-color:var(--ok)}
+.dots5 i.c{border-color:var(--acc);background:var(--acc)}
+@media(max-width:900px){
+  .lw{grid-template-columns:1fr;height:auto}
+  .lw>.left{border-right:0;overflow:visible}
+  .lw>.right{min-height:80vh}
+  body.ws .wrap{padding-bottom:70px}
+  .dots5{display:none}
+}
 </style>
 </head>
 <body>
 <div class="top"><div class="in">
-  <a class="logo" href="#map">C++dex</a>
+  <a class="logo" href="#map" aria-label="Programming Journey – mapa"><span class="br">{</span>Programming Journey<span class="br">}</span></a>
   <nav class="nav">
     <a href="#map" data-nav="map">🗺️ Mapa</a>
     <a href="#sandbox" data-nav="sandbox">🧪 Pískoviště</a>
@@ -145,9 +230,16 @@ body.srv .only-jscpp{display:none}body:not(.srv) .only-server{display:none}
     <span class="lvl" id="lvl">LV 1</span>
     <div><div class="xpbar"><i id="xpfill"></i></div><div class="small" id="xptx" style="font-size:11px">0 XP</div></div>
     <span class="streak" id="streak" title="Dní v řadě">🔥 0</span>
+    <button class="gear" id="gear" title="Nastavení zobrazení" aria-label="Nastavení zobrazení">⚙️</button>
   </div>
 </div></div>
 
+<div class="pop" id="pop" hidden>
+  <div class="pop-h">Zobrazení</div>
+  <div class="pop-r"><span>Velikost písma</span><span class="row"><button class="b gh sm" id="fsMinus" aria-label="Menší písmo">A−</button><button class="b gh sm" id="fsPlus" aria-label="Větší písmo">A+</button></span></div>
+  <label class="switch"><input type="checkbox" id="calm"> Klidný režim (bez animací, konfet a barevného pozadí)</label>
+  <label class="switch"><input type="checkbox" id="noGame"> Skrýt XP a sérii dní</label>
+</div>
 <main class="wrap" id="app"></main>
 
 <div class="modal" id="win"><div class="mbox">
@@ -265,7 +357,8 @@ function editor(host,initial,onChange,fname){
   const ta=host.querySelector('textarea'),gut=host.querySelector('.gut');
   ta.value=initial;
   const lines=()=>{const n=ta.value.split('\n').length;let s='';for(let i=1;i<=n;i++)s+=i+'\n';gut.textContent=s;};
-  const fit=()=>{ta.style.height='auto';ta.style.height=Math.max(260,ta.scrollHeight+4)+'px';};
+  const inWs=!!host.closest('.right');
+  const fit=()=>{if(inWs)return;ta.style.height='auto';ta.style.height=Math.max(260,ta.scrollHeight+4)+'px';};
   ta.addEventListener('input',()=>{lines();fit();onChange&&onChange(ta.value);});
   ta.addEventListener('scroll',()=>{gut.scrollTop=ta.scrollTop;});
   ta.addEventListener('keydown',e=>{
@@ -296,7 +389,7 @@ function viewMap(){
   const nx=nextLesson();
   const total=ALL.length,done=ALL.filter(x=>S.done[x.l.id]).length;
   let h=`<section class="hero"><h1>Nauč se C++<br><span style="color:var(--acc)">level po levelu.</span></h1>
-  <p>${total} lekcí v ${COURSE.length} světech. Čti teorii, piš kód přímo tady v prohlížeči, sbírej XP a odznaky. Hotovo: <b>${done}/${total}</b>.</p>
+  <p>${total} lekcí v ${COURSE.length} světech. Čti teorii, piš a spouštěj kód přímo tady, sbírej XP a odznaky. Hotovo: <b>${done}/${total}</b>.</p>
   ${nx?`<div class="btns"><a class="b sub" style="text-decoration:none" href="#lesson-${nx}">${done?'▶ Pokračovat':'▶ Začít'}: ${esc(byId(nx).l.title)}</a></div>`:'<p style="color:var(--ok);margin-top:12px"><b>🏆 Všechno hotovo! Jsi C++ legenda.</b></p>'}
   </section><div class="worlds">`;
   COURSE.forEach((w,wi)=>{
@@ -322,65 +415,105 @@ function viewLesson(id){
   const x=byId(id); if(!x){location.hash='#map';return;}
   if(!isUnlocked(id)){toast('🔒 Tahle lekce je zatím zamčená. Dokonči předchozí.');location.hash='#map';return;}
   const {w,l,wi,li}=x;
-  const crumbs=`<div class="crumbs"><a href="#map">Mapa</a> › Svět ${wi+1}: ${esc(w.title)} › Lekce ${li+1}/${w.lessons.length} ${S.done[id]?'<span class="tag" style="color:var(--ok)">✓ hotovo</span>':''}</div>`;
+  document.body.classList.add('ws');
+  const wd=w.lessons.filter(q=>S.done[q.id]).length, pct=Math.round(wd/w.lessons.length*100);
+  const idx=ALL.findIndex(q=>q.l.id===id), prev=ALL[idx-1], next=ALL[idx+1];
+  const dots=w.lessons.map(q=>`<i class="${S.done[q.id]?'d':''}${q.id===id?' c':''}"></i>`).join('');
+  const head=`<div class="lhead"><span>C++ / <b>Svět ${wi+1}: ${esc(w.title)}</b></span><div class="wbar" title="Hotovo ve světě"><i id="wfill" style="width:${pct}%"></i></div><span id="wpct">${pct} %</span>${l.type==='quiz'?'':'<a class="b gh sm" style="margin-left:auto;text-decoration:none" href="#" id="toTask">🎯 Úkol</a>'}</div>`;
+  const bot=`<div class="botbar">
+    <a class="ib" href="#map" title="Zpět na mapu" aria-label="Zpět na mapu">☰</a>
+    <div class="lt"><b>${esc(l.title)}</b><span>Lekce ${li+1} z ${w.lessons.length}<span class="xpchip">${XP_LESSON} XP</span>${S.done[id]?' · ✓ hotovo':''}</span></div>
+    <div class="dots5" id="dots5" aria-hidden="true">${dots}</div>
+    <div class="sp"></div>
+    ${prev?`<a class="b gh" style="text-decoration:none" href="#lesson-${prev.l.id}">← Zpět</a>`:''}
+    <button class="b sub" id="bNext" ${S.done[id]&&next?'':'disabled'}>Další →</button>
+  </div>`;
+  const wireNext=()=>{
+    const d2=w.lessons.filter(q=>S.done[q.id]).length,p2=Math.round(d2/w.lessons.length*100);
+    const wf=document.getElementById('wfill');if(wf){wf.style.width=p2+'%';document.getElementById('wpct').textContent=p2+' %';}
+    const ds=document.getElementById('dots5');if(ds)ds.innerHTML=w.lessons.map(q=>`<i class="${S.done[q.id]?'d':''}${q.id===id?' c':''}"></i>`).join('');const b=document.getElementById('bNext');if(!b)return;b.disabled=!(S.done[id]&&next);b.onclick=()=>{if(next&&isUnlocked(next.l.id))location.hash='#lesson-'+next.l.id;};if(!next){b.textContent='Mapa →';b.disabled=!S.done[id];b.onclick=()=>location.hash='#map';}};
+
   if(l.type==='quiz'){
-    app.innerHTML=crumbs+`<div class="grid"><div><div class="card"><h2 class="pix">${esc(l.title)}</h2>${l.theory}</div></div>
-    <div><div class="card task quiz"><h3 class="pix">KVÍZ</h3><div>${l.question}</div><div id="opts"></div><div class="hint" id="exp"></div></div></div></div>`;
+    app.innerHTML=`<div class="lw"><div class="left">${head}
+      <div class="sec"><div class="ltitle">${esc(l.title)}</div><span class="tag">kvíz</span></div>
+      <div class="sec theory"><h2>📖 Co se naučíš</h2>${l.theory}</div></div>
+      <div class="right" style="overflow:auto;background:var(--bg)"><div class="sec quiz"><h2>❓ Otázka</h2><div class="goal"><div class="what">${l.question}</div></div>
+      <p class="small" style="margin:12px 0 0">Vyber jednu odpověď. Když netrefíš, nic se neděje, zkus další.</p>
+      <div id="opts"></div><div class="hint" id="exp"></div></div></div></div>${bot}`;
+    wireNext();
     const o=document.getElementById('opts');
     l.options.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=esc(t);b.onclick=()=>{
-      if(i===l.answer){b.classList.add('right');const e=document.getElementById('exp');e.innerHTML='✅ '+l.explain;e.classList.add('show');setTimeout(()=>complete(id),600);}
+      if(i===l.answer){b.classList.add('right');const e=document.getElementById('exp');e.innerHTML='✅ '+l.explain;e.classList.add('show');setTimeout(()=>{complete(id);wireNext();},600);}
       else{b.classList.add('wrong');}
     };o.appendChild(b);});
     return;
   }
-  app.innerHTML=crumbs+`<div class="grid">
-   <div><div class="card"><h2 class="pix">${esc(l.title)}</h2>${l.theory}</div>
-     <div class="card task"><h3 class="pix">🎯 ÚKOL</h3><div>${l.task}</div>
-     <div class="hint" id="hint">💡 ${esc(l.hint)}</div>
-     <div class="hint" id="sol"><b>Řešení:</b><pre>${esc(l.solution)}</pre></div></div></div>
-   <div><div id="edhost"></div>
-     <div class="ed" style="margin-top:10px"><div class="io"><label style="border:0">Vstup (stdin)</label><textarea id="stdin" placeholder="Sem napiš, co program načte přes cin…">${esc(l.stdin||'')}</textarea></div></div>
-     <div class="btns">
-       <button class="b run" id="bRun">▶ Spustit</button>
-       <button class="b sub" id="bSub">✓ Odevzdat</button>
-       <button class="b gh" id="bHint">💡 Nápověda</button>
-       <button class="b gh" id="bSol" style="display:none">👀 Řešení</button>
-       <button class="b gh" id="bReset" title="Vrátit původní kód">↺</button>
-     </div>
-     <div class="out" id="out"><div class="h">KONZOLE</div><span class="small">Spusť program tlačítkem ▶ (nebo Ctrl+Enter).</span></div>
-     <div class="tests" id="tests"></div>
-   </div></div>`;
+  const t0=l.tests[0]||{in:'',out:''};
+  app.innerHTML=`<div class="lw"><div class="left">${head}
+    <div class="sec"><div class="ltitle">${esc(l.title)}</div></div>
+    <div class="sec theory"><h2>📖 Teorie</h2>${l.theory}</div>
+    <div class="sec" id="taskSec"><h2>🎯 Tvůj úkol</h2>
+      <div class="goal"><div class="what">${l.task}</div>
+      <ol class="steps" id="steps">
+        <li data-s="1"><span class="n">1</span>Napiš kód do editoru</li>
+        <li data-s="2"><span class="n">2</span>Klikni na ▶ Spustit a podívej se do terminálu</li>
+        <li data-s="3"><span class="n">3</span>Když výstup sedí, klikni na ✓ Odevzdat</li>
+      </ol></div></div>
+    <div class="sec"><h2>🔍 Příklad, jak to má fungovat</h2>
+      <div class="expect">${t0.in?`<div class="box"><div class="k">Vstup</div><pre>${esc(t0.in)}</pre></div>`:''}<div class="box"><div class="k">Správný výstup</div><pre>${esc(t0.out)||'(nic)'}</pre></div></div></div>
+    <div class="sec"><h2>🆘 Pomoc</h2>
+      <details class="acc" id="dHint"><summary>💡 Nápověda</summary><div>${esc(l.hint)}</div></details>
+      <details class="acc lockd" id="dSol"><summary>👀 Řešení <span class="small" id="solNote">(otevře se po nápovědě)</span></summary><div><pre>${esc(l.solution)}</pre></div></details>
+    </div>
+  </div>
+  <div class="right">
+    <div id="edhost" style="flex:1;display:flex;flex-direction:column;min-height:0"></div>
+    <div class="stdinrow"><label for="stdin">VSTUP (cin)</label><textarea id="stdin" rows="1" placeholder="Co program načte přes cin…">${esc(l.stdin||'')}</textarea></div>
+    <div class="actbar"><button class="b gh" id="bReset" title="Vrátit původní kód">↺ Začít znovu</button><span class="sp"></span>
+      <button class="b run" id="bRun">▶ Spustit</button><button class="b sub" id="bSub">✓ Odevzdat</button></div>
+    <div class="term"><div class="th">Terminál</div><div class="tb" id="out"><div class="empty">Klikni na ▶ Spustit (nebo Ctrl+Enter) a výsledek se ukáže tady.</div></div></div>
+  </div></div>${bot}`;
+  wireNext();
+  document.getElementById('toTask').onclick=e=>{e.preventDefault();document.getElementById('taskSec').scrollIntoView({behavior:'smooth',block:'start'});};
   const host=document.getElementById('edhost');
-  const ed=editor(host,S.code[id]!=null?S.code[id]:l.starter,v=>{S.code[id]=v;save();});
-  const out=document.getElementById('out'),tests=document.getElementById('tests');
+  const ed=editor(host,S.code[id]!=null?S.code[id]:l.starter,v=>{S.code[id]=v;save();if(st<2&&v!==l.starter)setStep(2);});
+  const out=document.getElementById('out');
   const bRun=document.getElementById('bRun'),bSub=document.getElementById('bSub');
+  const dHint=document.getElementById('dHint'),dSol=document.getElementById('dSol');
+  let st=0;
+  function setStep(n){st=n;document.querySelectorAll('#steps li').forEach(li=>{const k=+li.dataset.s;li.classList.toggle('ok',k<n);li.classList.toggle('now',k===n);});}
+  setStep(S.done[id]?4:(S.code[id]!=null&&S.code[id]!==l.starter?2:1));
+  function unlockSol(){dSol.classList.remove('lockd');document.getElementById('solNote').textContent='';}
+  if(S.hints&&S.hints[id])unlockSol();
+  dSol.addEventListener('click',e=>{if(dSol.classList.contains('lockd')){e.preventDefault();toast('Nejdřív zkus nápovědu 💡');}});
+  dHint.addEventListener('toggle',()=>{if(dHint.open){S.hints=S.hints||{};S.hints[id]=1;save();unlockSol();}});
   let fails=0;
   const busy=b=>{bRun.disabled=bSub.disabled=b;};
   async function doRun(){
-    busy(true);out.innerHTML='<div class="h">KONZOLE</div><span class="small">Běží…</span>';
+    busy(true);out.innerHTML='<span class="small">Běží…</span>';
     const r=await runCpp(ed.get(),document.getElementById('stdin').value);busy(false);
-    out.innerHTML='<div class="h">KONZOLE</div>'+esc(r.out||'')+(r.ok?(r.out?'':'<span class="small">(žádný výstup)</span>'):'\n<span class="err">'+esc(prettyErr(r.err))+'</span>');
+    out.innerHTML=esc(r.out||'')+(r.ok?(r.out?'':'<span class="small">(program nic nevypsal)</span>'):'\n<span class="err">'+esc(prettyErr(r.err))+'</span>');
+    if(r.ok&&st<3)setStep(3);
   }
   async function doSubmit(){
-    busy(true);tests.innerHTML='';
-    const code=ed.get();let all=true,html='';
+    busy(true);out.innerHTML='<span class="small">Kontroluju řešení…</span>';
+    const code=ed.get();let all=true,html='',first='';
     const missing=(l.must||[]).filter(m=>!new RegExp(m).test(code.replace(/\/\/.*$/gm,'').replace(/\/\*[\s\S]*?\*\//g,'')));
     for(let i=0;i<l.tests.length;i++){
       const t=l.tests[i];const r=await runCpp(code,t.in);
       const pass=r.ok&&norm(r.out)===norm(t.out);all=all&&pass;
-      if(!r.ok&&i===0){out.innerHTML='<div class="h">KONZOLE</div>'+esc(r.out||'')+'\n<span class="err">'+esc(prettyErr(r.err))+'</span>';}
+      if(i===0)first=esc(r.out||'')+(r.ok?'':'\n<span class="err">'+esc(prettyErr(r.err))+'</span>');
       html+=`<div class="t ${pass?'p':'f'}">${pass?'✅':'❌'} Test ${i+1}${t.in?` – vstup: <code>${esc(t.in.replace(/\n/g,' ⏎ '))}</code>`:''}${pass?'':`<pre>Očekáváno:\n${esc(t.out)}\n\nTvůj výstup:\n${r.ok?esc(r.out||'(nic)'):esc(prettyErr(r.err))}</pre>`}</div>`;
       if(!pass&&!r.ok)break;
     }
-    if(missing.length){all=false;html+=`<div class="t f">❌ Výstup sedí, ale řešení nepoužívá to, co lekce procvičuje. Drž se zadání úkolu.</div>`;}
-    tests.innerHTML=html;busy(false);
-    if(all)complete(id);
-    else{fails++;if(fails>=2)document.getElementById('bSol').style.display='';}
+    if(missing.length){all=false;html+=`<div class="t f">❌ Výstup sedí, ale řešení nepoužívá to, co lekce procvičuje (${esc(missing.join(', '))}). Drž se zadání úkolu.</div>`;}
+    out.innerHTML=first+`<div class="verdict ${all?'good':'bad'}">${all?'✅ Všechny testy prošly. Skvělá práce!':'Ještě to není ono. Podívej se, který test neprošel, a zkus to upravit.'}</div><div class="tests">${html}</div>`;
+    busy(false);
+    if(all){setStep(4);complete(id);wireNext();}
+    else{fails++;if(fails>=2)unlockSol();}
   }
   bRun.onclick=doRun;host.addEventListener('run',doRun);bSub.onclick=doSubmit;
-  document.getElementById('bHint').onclick=()=>{document.getElementById('hint').classList.add('show');document.getElementById('bSol').style.display='';};
-  document.getElementById('bSol').onclick=()=>document.getElementById('sol').classList.toggle('show');
-  document.getElementById('bReset').onclick=()=>{ed.set(l.starter);toast('Kód vrácen na začátek');};
+  document.getElementById('bReset').onclick=()=>{ed.set(l.starter);setStep(1);toast('Kód vrácen na začátek');};
 }
 
 function complete(id){
@@ -455,25 +588,41 @@ function viewProfile(){
   document.getElementById('ua').onchange=e=>{S.unlockAll=e.target.checked;save();};
   document.getElementById('cp').onclick=()=>{navigator.clipboard.writeText(code).then(()=>toast('Zkopírováno ✓'),()=>{document.getElementById('bk').select();toast('Označeno – zkopíruj ručně');});};
   document.getElementById('im').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob(document.getElementById('imp').value.trim()))));if(!o.done)throw 0;S=Object.assign({done:{},code:{},xp:0,days:[]},o);save();hud();toast('Postup obnoven ✓');viewProfile();}catch(e){toast('Neplatný kód zálohy');}};
-  let armed=false;document.getElementById('rs').onclick=e=>{if(!armed){armed=true;e.target.textContent='Opravdu? Klikni znovu';return;}S={done:{},code:{},xp:0,days:[],unlockAll:false,hints:{}};save();hud();toast('Postup smazán');viewProfile();};
+  let armed=false;document.getElementById('rs').onclick=e=>{if(!armed){armed=true;e.target.textContent='Opravdu? Klikni znovu';return;}S={done:{},code:{},xp:0,days:[],unlockAll:false,hints:{},ui:S.ui};save();hud();toast('Postup smazán');viewProfile();};
 }
 
 // ---------- misc ----------
 let tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',2200);}
 function confetti(){
+  if(document.body.classList.contains('calm')||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const c=document.getElementById('confetti'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
   const cols=['#ffd43b','#ff6b6b','#51cf66','#4dabf7','#e599f7','#ff922b'];
   const P=Array.from({length:120},()=>({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*14,vy:Math.random()*-14-4,s:4+Math.random()*6,c:cols[Math.random()*cols.length|0],r:Math.random()*6}));
   let f=0;(function a(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.vy+=.45;p.x+=p.vx;p.y+=p.vy;p.r+=.2;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore();});if(++f<110)requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height);})();
 }
 function route(){
-  hideWin();const h=location.hash.slice(1);
+  hideWin();document.body.classList.remove('ws');const h=location.hash.slice(1);
   if(h.startsWith('lesson-'))viewLesson(h.slice(7));
   else if(h==='sandbox')viewSandbox();
   else if(h==='profile')viewProfile();
   else viewMap();
   window.scrollTo(0,0);
 }
+// ---------- nastavení zobrazení ----------
+function applyUi(){
+  const u=S.ui||(S.ui={fs:16,calm:false,noGame:false});
+  document.documentElement.style.fontSize=u.fs+'px';document.body.style.fontSize=u.fs+'px';
+  document.body.classList.toggle('calm',!!u.calm);document.body.classList.toggle('nogame',!!u.noGame);
+  document.getElementById('calm').checked=!!u.calm;document.getElementById('noGame').checked=!!u.noGame;
+}
+const pop=document.getElementById('pop');
+document.getElementById('gear').onclick=e=>{e.stopPropagation();pop.hidden=!pop.hidden;};
+document.addEventListener('click',e=>{if(!pop.hidden&&!pop.contains(e.target))pop.hidden=true;});
+document.getElementById('fsMinus').onclick=()=>{S.ui.fs=Math.max(13,S.ui.fs-1);save();applyUi();};
+document.getElementById('fsPlus').onclick=()=>{S.ui.fs=Math.min(22,S.ui.fs+1);save();applyUi();};
+document.getElementById('calm').onchange=e=>{S.ui.calm=e.target.checked;save();applyUi();};
+document.getElementById('noGame').onchange=e=>{S.ui.noGame=e.target.checked;save();applyUi();};
+applyUi();
 addEventListener('hashchange',route);
 hud();route();
 hasServer().then(ok=>{if(ok)document.body.classList.add('srv');});
