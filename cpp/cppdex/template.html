@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C++dex – nauč se C++</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1226; --bg2:#171b36; --card:#1e2346; --card2:#262c58; --line:#33397a;
+  --tx:#eef0ff; --mut:#9aa0d0; --acc:#ffd43b; --ok:#51cf66; --bad:#ff6b6b; --blue:#4dabf7;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.55}
+body{background-image:radial-gradient(circle at 20% 0%,#2a2f6b55 0,transparent 40%),radial-gradient(circle at 90% 30%,#5a2a6b33 0,transparent 35%);min-height:100vh}
+a{color:var(--blue)}
+code{font-family:var(--mono);background:#0b0e20;border:1px solid var(--line);padding:1px 5px;border-radius:5px;font-size:.88em;color:#ffe08a}
+pre{font-family:var(--mono);background:#0b0e20;border:1px solid var(--line);padding:10px 12px;border-radius:10px;overflow:auto;font-size:.85em;line-height:1.5;color:#d6dcff}
+.pix{font-family:'Press Start 2P',monospace;letter-spacing:.5px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px}
+.wrap{max-width:1100px;margin:0 auto;padding:0 14px 60px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:#0f1226ee;backdrop-filter:blur(8px);border-bottom:2px solid var(--line)}
+.top .in{max-width:1100px;margin:0 auto;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.logo{font-family:'Press Start 2P',monospace;font-size:15px;color:var(--acc);text-decoration:none;white-space:nowrap;text-shadow:3px 3px 0 #b8541f}
+.nav{display:flex;gap:6px;margin-left:auto}
+.nav a{color:var(--mut);text-decoration:none;font-weight:600;font-size:14px;padding:6px 10px;border-radius:8px}
+.nav a.on,.nav a:hover{background:var(--card);color:var(--tx)}
+.stats{display:flex;align-items:center;gap:10px;font-size:13px}
+.lvl{background:var(--acc);color:#2b1a00;font-family:'Press Start 2P',monospace;font-size:9px;padding:6px 7px;border-radius:7px;box-shadow:0 3px 0 #b8541f}
+.xpbar{width:90px;height:10px;background:#0b0e20;border:2px solid var(--line);border-radius:6px;overflow:hidden}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,#ffd43b,#ff922b);width:0;transition:width .6s}
+.streak{font-weight:700}
+@media(max-width:700px){.top .in{flex-wrap:wrap;gap:8px}.nav{order:3;margin-left:0;width:100%;justify-content:space-between}.stats{margin-left:auto}.xpbar{width:60px}}
+
+/* map */
+.hero{padding:28px 0 8px}
+.hero h1{font-family:'Press Start 2P',monospace;font-size:clamp(16px,3.6vw,26px);line-height:1.5;margin:0 0 10px}
+.hero p{color:var(--mut);margin:0;max-width:640px}
+.worlds{display:grid;gap:18px;margin-top:22px}
+.world{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px;position:relative;box-shadow:0 6px 0 #0a0c1d}
+.world.locked{opacity:.55}
+.wh{display:flex;align-items:center;gap:12px}
+.wicon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px;flex:none;box-shadow:inset 0 -4px 0 #0003}
+.wh h2{margin:0;font-size:12px;line-height:1.6}
+.wh .sub{color:var(--mut);font-size:14px}
+.wprog{margin-left:auto;text-align:right;font-size:12px;color:var(--mut);white-space:nowrap}
+.path{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.node{display:flex;align-items:center;gap:8px;background:var(--card2);color:var(--tx);border:2px solid var(--line);padding:9px 12px;border-radius:12px;font-weight:600;font-size:14px;text-decoration:none;transition:transform .1s}
+.node:hover{transform:translateY(-2px)}
+.node .dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;background:#0b0e20;border:2px solid var(--line)}
+.node.done .dot{background:var(--ok);border-color:var(--ok);color:#06210d}
+.node.cur{border-color:var(--acc);box-shadow:0 0 0 3px #ffd43b33}
+.node.lock{pointer-events:none;opacity:.5}
+.bonus{background:linear-gradient(135deg,#2b2160,#1e2346);border:2px dashed #7a5af8;border-radius:18px;padding:16px;margin-top:18px}
+.bonus h3{margin:0 0 6px;font-size:11px;line-height:1.7;color:#d0bfff}
+
+/* lesson */
+.crumbs{margin:18px 0 10px;font-size:14px;color:var(--mut)}
+.crumbs a{color:var(--mut)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:0 5px 0 #0a0c1d}
+.card h2{font-size:13px;line-height:1.6;margin:0 0 10px}
+.card+.card{margin-top:14px}
+.task{border-color:#ffd43b88;background:linear-gradient(180deg,#2a2a3e,var(--card))}
+.task h3{margin:0 0 6px;font-size:10px;color:var(--acc)}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;background:#0b0e20;border:1px solid var(--line);color:var(--mut);margin-right:6px}
+
+.ed{background:#0b0e20;border:2px solid var(--line);border-radius:14px;overflow:hidden}
+.edbar{display:flex;align-items:center;gap:6px;padding:8px 10px;background:#13173a;border-bottom:2px solid var(--line);font-size:12px;color:var(--mut)}
+.edbar .f{font-family:var(--mono)}
+.edbar .dots i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.code{position:relative;display:flex;min-height:260px}
+.gut{flex:none;padding:12px 8px 12px 10px;text-align:right;color:#4b5196;font-family:var(--mono);font-size:14px;line-height:21px;user-select:none;white-space:pre;overflow:hidden;background:#0d1028}
+textarea.src{flex:1;min-height:260px;resize:vertical;background:transparent;color:#e6e9ff;border:0;outline:0;padding:12px;font-family:var(--mono);font-size:14px;line-height:21px;white-space:pre;overflow:auto;tab-size:4;caret-color:var(--acc)}
+.io{display:grid;grid-template-columns:1fr;gap:0;border-top:2px solid var(--line)}
+.io label{display:block;font-size:11px;color:var(--mut);padding:6px 12px 0;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.io textarea{width:100%;background:transparent;color:#cfe;border:0;outline:0;font-family:var(--mono);font-size:13px;padding:4px 12px 10px;resize:vertical;min-height:38px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.b{padding:11px 16px;font-weight:700;font-size:14px;color:#10132b;background:var(--tx);box-shadow:0 4px 0 #8f93b8;transition:transform .05s}
+.b:active{transform:translateY(3px);box-shadow:0 1px 0 #8f93b8}
+.b.run{background:var(--blue);box-shadow:0 4px 0 #1c6aa8}
+.b.sub{background:var(--ok);box-shadow:0 4px 0 #2b8a3e}
+.b.gh{background:var(--card2);color:var(--tx);box-shadow:0 4px 0 #11143a;border:2px solid var(--line)}
+.b:disabled{opacity:.5;cursor:wait}
+.out{background:#06081a;border:2px solid var(--line);border-radius:14px;min-height:90px;padding:10px 12px;font-family:var(--mono);font-size:13px;white-space:pre-wrap;word-break:break-word}
+.out .h{color:var(--mut);font-size:11px;font-weight:700;letter-spacing:.5px;margin-bottom:6px;font-family:Inter}
+.err{color:#ff9b9b}.okc{color:#8ce99a}
+.tests{margin-top:10px;display:grid;gap:6px}
+.t{border-radius:10px;padding:8px 10px;font-size:13px;border:2px solid}
+.t.p{border-color:#2b8a3e;background:#0f2a18}
+.t.f{border-color:#c92a2a;background:#2c1015}
+.t pre{margin:6px 0 0;font-size:12px;padding:6px 8px}
+.hint{display:none;margin-top:10px;border-left:4px solid var(--acc);background:#2a2a1a;padding:10px 12px;border-radius:8px}
+.hint.show{display:block}
+
+.quiz .opt{display:block;width:100%;text-align:left;background:var(--card2);color:var(--tx);border:2px solid var(--line);padding:12px 14px;margin:8px 0;font-weight:600;border-radius:12px}
+.quiz .opt:hover{border-color:var(--blue)}
+.quiz .opt.right{border-color:var(--ok);background:#0f2a18}
+.quiz .opt.wrong{border-color:var(--bad);background:#2c1015}
+
+/* win modal */
+.modal{position:fixed;inset:0;background:#05061299;display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.show{display:flex}
+.mbox{background:var(--card);border:3px solid var(--acc);border-radius:20px;padding:24px;max-width:420px;width:100%;text-align:center;box-shadow:0 8px 0 #b8541f;animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+.mbox .big{font-size:52px}
+.mbox h2{font-size:14px;line-height:1.7;margin:8px 0}
+.mbox .xp{font-family:'Press Start 2P',monospace;color:var(--acc);font-size:16px;margin:10px 0 16px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60}
+
+/* profile */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.badge{background:var(--card2);border:2px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+.badge .i{font-size:34px;filter:grayscale(1) brightness(.5)}
+.badge.got{border-color:var(--acc)}
+.badge.got .i{filter:none}
+.badge .n{font-size:13px;font-weight:700;margin-top:6px}
+.badge .d{font-size:12px;color:var(--mut)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card2);border:2px solid var(--line);border-radius:14px;padding:12px}
+.kpi b{display:block;font-family:'Press Start 2P',monospace;font-size:16px;color:var(--acc);margin-bottom:6px}
+.kpi span{font-size:12px;color:var(--mut)}
+textarea.bk{width:100%;min-height:70px;background:#0b0e20;color:#cfe;border:2px solid var(--line);border-radius:10px;font-family:var(--mono);font-size:11px;padding:8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.small{font-size:13px;color:var(--mut)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--card2);border:2px solid var(--acc);padding:10px 16px;border-radius:12px;z-index:70;font-weight:600;display:none}
+.switch{display:flex;align-items:center;gap:8px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="top"><div class="in">
+  <a class="logo" href="#map">C++dex</a>
+  <nav class="nav">
+    <a href="#map" data-nav="map">🗺️ Mapa</a>
+    <a href="#sandbox" data-nav="sandbox">🧪 Pískoviště</a>
+    <a href="#profile" data-nav="profile">🏆 Profil</a>
+  </nav>
+  <div class="stats">
+    <span class="lvl" id="lvl">LV 1</span>
+    <div><div class="xpbar"><i id="xpfill"></i></div><div class="small" id="xptx" style="font-size:11px">0 XP</div></div>
+    <span class="streak" id="streak" title="Dní v řadě">🔥 0</span>
+  </div>
+</div></div>
+
+<main class="wrap" id="app"></main>
+
+<div class="modal" id="win"><div class="mbox">
+  <div class="big" id="winIcon">🎉</div>
+  <h2 class="pix" id="winTitle">Lekce splněna!</h2>
+  <div id="winText" class="small"></div>
+  <div class="xp" id="winXp">+10 XP</div>
+  <div class="row" style="justify-content:center">
+    <button class="b gh" id="winStay">Zůstat</button>
+    <button class="b sub" id="winNext">Další lekce ➜</button>
+  </div>
+</div></div>
+<canvas id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+
+<script type="text/plain" id="jscpp-lib">/*__JSCPP__*/</script>
+<script>/*__LESSONS__*/</script>
+<script>
+(function(){
+'use strict';
+// ---------- state ----------
+const KEY='cppdex-v1';
+const XP_LESSON=10, XP_WORLD=50, XP_PER_LVL=100;
+let S={done:{},code:{},xp:0,days:[],unlockAll:false,hints:{}};
+function load(){try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+load();
+
+const ALL=[];COURSE.forEach((w,wi)=>w.lessons.forEach((l,li)=>ALL.push({w,l,wi,li})));
+const byId=id=>ALL.find(x=>x.l.id===id);
+function isUnlocked(id){
+  if(S.unlockAll)return true;
+  const i=ALL.findIndex(x=>x.l.id===id);
+  return i===0||!!S.done[ALL[i-1].l.id]||!!S.done[id];
+}
+function worldDone(w){return w.lessons.every(l=>S.done[l.id]);}
+function nextLesson(){const x=ALL.find(x=>!S.done[x.l.id]);return x?x.l.id:null;}
+
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function streak(){
+  const set=new Set(S.days);let n=0;const d=new Date();
+  if(!set.has(today()))d.setDate(d.getDate()-1);
+  for(;;){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(set.has(k)){n++;d.setDate(d.getDate()-1);}else break;}
+  return n;
+}
+function hud(){
+  const lv=Math.floor(S.xp/XP_PER_LVL)+1, rem=S.xp%XP_PER_LVL;
+  document.getElementById('lvl').textContent='LV '+lv;
+  document.getElementById('xpfill').style.width=rem+'%';
+  document.getElementById('xptx').textContent=S.xp+' XP';
+  document.getElementById('streak').textContent='🔥 '+streak();
+}
+
+// ---------- runner (web worker + timeout) ----------
+let worker=null,pending=null,seq=0;
+function mkWorker(){
+  const lib=document.getElementById('jscpp-lib').textContent;
+  const body=`self.window=self;\n${lib}\n;self.onmessage=function(e){var d=e.data,out='';try{var code=JSCPP.run(d.code,d.input,{stdio:{write:function(s){out+=s;if(out.length>200000)throw new Error('Příliš mnoho výstupu (nekonečný cyklus?)');}},maxTimeout:${2800}});self.postMessage({id:d.id,ok:true,out:out,exit:code});}catch(err){self.postMessage({id:d.id,ok:false,out:out,err:String(err&&err.message||err)});}};`;
+  const url=URL.createObjectURL(new Blob([body],{type:'text/javascript'}));
+  worker=new Worker(url);
+  worker.onmessage=e=>{if(pending&&e.data.id===pending.id){clearTimeout(pending.t);const p=pending;pending=null;p.res(e.data);}};
+}
+function runCpp(code,input){
+  return new Promise(res=>{
+    if(!worker)mkWorker();
+    const id=++seq;
+    const t=setTimeout(()=>{if(pending&&pending.id===id){pending=null;worker.terminate();worker=null;res({ok:false,out:'',err:'TIMEOUT'});}},3500);
+    pending={id,res,t};
+    worker.postMessage({id,code,input:input||''});
+  });
+}
+function prettyErr(e){
+  if(e==='TIMEOUT'||/time limit|timeout/i.test(e))return '⏱️ Program běžel moc dlouho (víc než 3 s). Nemáš nekonečný cyklus?';
+  let m;
+  if((m=/Parsing Failure:\s*\n?line (\d+) \(column (\d+)\)/.exec(e))){
+    const exp=/Expected (.*?) but/.exec(e);
+    return `🧱 Syntaktická chyba na řádku ${m[1]}, sloupec ${m[2]}.\nZkontroluj středníky ; , závorky ( ) { } a uvozovky " ".`+(exp?'':'');
+  }
+  if((m=/cannot find library: (\w+)/.exec(e)))return `📚 Knihovnu <${m[1]}> tenhle prohlížečový interpret nepodporuje (umí iostream, cmath, cstring, cstdio…). Tohle si spusť v g++ na PC.`;
+  if((m=/^(\d+):(\d+) variable (\w+) does not exist/.exec(e)))return `❓ Řádek ${m[1]}: proměnná „${m[3]}“ neexistuje. Deklaroval jsi ji (např. int ${m[3]};)? Nepřeklepl ses?`;
+  if((m=/^(\d+):(\d+) (.*)/.exec(e)))return `⚠️ Řádek ${m[1]}: ${m[3]}`;
+  return '⚠️ '+e;
+}
+const norm=s=>String(s).replace(/\r/g,'').split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+// ---------- editor ----------
+function editor(host,initial,onChange,fname){
+  host.innerHTML=`<div class="ed"><div class="edbar"><span class="dots"><i style="background:#ff6b6b"></i><i style="background:#ffd43b"></i><i style="background:#51cf66"></i></span><span class="f">${fname||'main.cpp'}</span></div>
+  <div class="code"><div class="gut"></div><textarea class="src" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off"></textarea></div></div>`;
+  const ta=host.querySelector('textarea'),gut=host.querySelector('.gut');
+  ta.value=initial;
+  const lines=()=>{const n=ta.value.split('\n').length;let s='';for(let i=1;i<=n;i++)s+=i+'\n';gut.textContent=s;};
+  const fit=()=>{ta.style.height='auto';ta.style.height=Math.max(260,ta.scrollHeight+4)+'px';};
+  ta.addEventListener('input',()=>{lines();fit();onChange&&onChange(ta.value);});
+  ta.addEventListener('scroll',()=>{gut.scrollTop=ta.scrollTop;});
+  ta.addEventListener('keydown',e=>{
+    const s=ta.selectionStart,en=ta.selectionEnd,v=ta.value;
+    if(e.key==='Tab'){e.preventDefault();ta.setRangeText('    ',s,en,'end');ta.dispatchEvent(new Event('input'));}
+    else if(e.key==='Enter'){
+      const ls=v.lastIndexOf('\n',s-1)+1;const ind=(/^[ \t]*/.exec(v.slice(ls,s))||[''])[0];
+      const prev=v.slice(0,s).trimEnd();const extra=prev.endsWith('{')?'    ':'';
+      e.preventDefault();
+      if(extra&&v[en]==='}'){ta.setRangeText('\n'+ind+extra+'\n'+ind,s,en,'start');ta.selectionStart=ta.selectionEnd=s+1+ind.length+extra.length;}
+      else ta.setRangeText('\n'+ind+extra,s,en,'end');
+      ta.dispatchEvent(new Event('input'));
+    } else if(e.key==='}'){
+      const ls=v.lastIndexOf('\n',s-1)+1;const before=v.slice(ls,s);
+      if(/^ {4,}$/.test(before)){e.preventDefault();ta.setRangeText(before.slice(4)+'}',ls,en,'end');ta.dispatchEvent(new Event('input'));}
+    } else if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();host.dispatchEvent(new CustomEvent('run'));}
+  });
+  lines();setTimeout(fit,0);
+  return {get:()=>ta.value,set:v=>{ta.value=v;lines();fit();onChange&&onChange(v);},el:ta};
+}
+
+// ---------- views ----------
+const app=document.getElementById('app');
+function setNav(n){document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('on',a.dataset.nav===n));}
+
+function viewMap(){
+  setNav('map');
+  const nx=nextLesson();
+  const total=ALL.length,done=ALL.filter(x=>S.done[x.l.id]).length;
+  let h=`<section class="hero"><h1>Nauč se C++<br><span style="color:var(--acc)">level po levelu.</span></h1>
+  <p>${total} lekcí v ${COURSE.length} světech. Čti teorii, piš kód přímo tady v prohlížeči, sbírej XP a odznaky. Hotovo: <b>${done}/${total}</b>.</p>
+  ${nx?`<div class="btns"><a class="b sub" style="text-decoration:none" href="#lesson-${nx}">${done?'▶ Pokračovat':'▶ Začít'}: ${esc(byId(nx).l.title)}</a></div>`:'<p style="color:var(--ok);margin-top:12px"><b>🏆 Všechno hotovo! Jsi C++ legenda.</b></p>'}
+  </section><div class="worlds">`;
+  COURSE.forEach((w,wi)=>{
+    const d=w.lessons.filter(l=>S.done[l.id]).length;
+    const locked=!isUnlocked(w.lessons[0].id);
+    h+=`<div class="world${locked?' locked':''}"><div class="wh"><div class="wicon" style="background:${w.color}">${w.icon}</div>
+    <div><h2 class="pix">Svět ${wi+1}: ${esc(w.title)}</h2><div class="sub">${esc(w.desc)}</div></div>
+    <div class="wprog">${d}/${w.lessons.length}${worldDone(w)?' ✅':''}</div></div><div class="path">`;
+    w.lessons.forEach((l,li)=>{
+      const un=isUnlocked(l.id),dn=S.done[l.id];
+      h+=`<a class="node${dn?' done':''}${l.id===nx?' cur':''}${un?'':' lock'}" href="#lesson-${l.id}"><span class="dot">${dn?'✓':(un?li+1:'🔒')}</span>${esc(l.title)}${l.type==='quiz'?' <span class="tag">kvíz</span>':''}</a>`;
+    });
+    h+=`</div></div>`;
+  });
+  h+=`</div><div class="bonus"><h3 class="pix">🖥️ Bonus: C++ na tvém PC</h3>
+  <p class="small" style="margin:0">Tenhle web běží na zjednodušeném interpretu (umí základy, funkce, pole, ukazatele). Na <code>string</code>, <code>vector</code>, třídy a velké projekty si nainstaluj skutečný kompilátor:</p>
+  <ul class="small"><li><b>Windows:</b> Visual Studio Community (zdarma) nebo MSYS2 + g++</li><li><b>Linux / Raspberry Pi:</b> <code>sudo apt install g++</code>, pak <code>g++ main.cpp -o main &amp;&amp; ./main</code></li><li><b>Editor:</b> VS Code + rozšíření C/C++</li></ul></div>`;
+  app.innerHTML=h;
+}
+
+function viewLesson(id){
+  setNav('map');
+  const x=byId(id); if(!x){location.hash='#map';return;}
+  if(!isUnlocked(id)){toast('🔒 Tahle lekce je zatím zamčená. Dokonči předchozí.');location.hash='#map';return;}
+  const {w,l,wi,li}=x;
+  const crumbs=`<div class="crumbs"><a href="#map">Mapa</a> › Svět ${wi+1}: ${esc(w.title)} › Lekce ${li+1}/${w.lessons.length} ${S.done[id]?'<span class="tag" style="color:var(--ok)">✓ hotovo</span>':''}</div>`;
+  if(l.type==='quiz'){
+    app.innerHTML=crumbs+`<div class="grid"><div><div class="card"><h2 class="pix">${esc(l.title)}</h2>${l.theory}</div></div>
+    <div><div class="card task quiz"><h3 class="pix">KVÍZ</h3><div>${l.question}</div><div id="opts"></div><div class="hint" id="exp"></div></div></div></div>`;
+    const o=document.getElementById('opts');
+    l.options.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=esc(t);b.onclick=()=>{
+      if(i===l.answer){b.classList.add('right');const e=document.getElementById('exp');e.innerHTML='✅ '+l.explain;e.classList.add('show');setTimeout(()=>complete(id),600);}
+      else{b.classList.add('wrong');}
+    };o.appendChild(b);});
+    return;
+  }
+  app.innerHTML=crumbs+`<div class="grid">
+   <div><div class="card"><h2 class="pix">${esc(l.title)}</h2>${l.theory}</div>
+     <div class="card task"><h3 class="pix">🎯 ÚKOL</h3><div>${l.task}</div>
+     <div class="hint" id="hint">💡 ${esc(l.hint)}</div>
+     <div class="hint" id="sol"><b>Řešení:</b><pre>${esc(l.solution)}</pre></div></div></div>
+   <div><div id="edhost"></div>
+     <div class="ed" style="margin-top:10px"><div class="io"><label style="border:0">Vstup (stdin)</label><textarea id="stdin" placeholder="Sem napiš, co program načte přes cin…">${esc(l.stdin||'')}</textarea></div></div>
+     <div class="btns">
+       <button class="b run" id="bRun">▶ Spustit</button>
+       <button class="b sub" id="bSub">✓ Odevzdat</button>
+       <button class="b gh" id="bHint">💡 Nápověda</button>
+       <button class="b gh" id="bSol" style="display:none">👀 Řešení</button>
+       <button class="b gh" id="bReset" title="Vrátit původní kód">↺</button>
+     </div>
+     <div class="out" id="out"><div class="h">KONZOLE</div><span class="small">Spusť program tlačítkem ▶ (nebo Ctrl+Enter).</span></div>
+     <div class="tests" id="tests"></div>
+   </div></div>`;
+  const host=document.getElementById('edhost');
+  const ed=editor(host,S.code[id]!=null?S.code[id]:l.starter,v=>{S.code[id]=v;save();});
+  const out=document.getElementById('out'),tests=document.getElementById('tests');
+  const bRun=document.getElementById('bRun'),bSub=document.getElementById('bSub');
+  let fails=0;
+  const busy=b=>{bRun.disabled=bSub.disabled=b;};
+  async function doRun(){
+    busy(true);out.innerHTML='<div class="h">KONZOLE</div><span class="small">Běží…</span>';
+    const r=await runCpp(ed.get(),document.getElementById('stdin').value);busy(false);
+    out.innerHTML='<div class="h">KONZOLE</div>'+esc(r.out||'')+(r.ok?(r.out?'':'<span class="small">(žádný výstup)</span>'):'\n<span class="err">'+esc(prettyErr(r.err))+'</span>');
+  }
+  async function doSubmit(){
+    busy(true);tests.innerHTML='';
+    const code=ed.get();let all=true,html='';
+    const missing=(l.must||[]).filter(m=>!new RegExp(m).test(code.replace(/\/\/.*$/gm,'').replace(/\/\*[\s\S]*?\*\//g,'')));
+    for(let i=0;i<l.tests.length;i++){
+      const t=l.tests[i];const r=await runCpp(code,t.in);
+      const pass=r.ok&&norm(r.out)===norm(t.out);all=all&&pass;
+      if(!r.ok&&i===0){out.innerHTML='<div class="h">KONZOLE</div>'+esc(r.out||'')+'\n<span class="err">'+esc(prettyErr(r.err))+'</span>';}
+      html+=`<div class="t ${pass?'p':'f'}">${pass?'✅':'❌'} Test ${i+1}${t.in?` – vstup: <code>${esc(t.in.replace(/\n/g,' ⏎ '))}</code>`:''}${pass?'':`<pre>Očekáváno:\n${esc(t.out)}\n\nTvůj výstup:\n${r.ok?esc(r.out||'(nic)'):esc(prettyErr(r.err))}</pre>`}</div>`;
+      if(!pass&&!r.ok)break;
+    }
+    if(missing.length){all=false;html+=`<div class="t f">❌ Výstup sedí, ale řešení nepoužívá to, co lekce procvičuje. Drž se zadání úkolu.</div>`;}
+    tests.innerHTML=html;busy(false);
+    if(all)complete(id);
+    else{fails++;if(fails>=2)document.getElementById('bSol').style.display='';}
+  }
+  bRun.onclick=doRun;host.addEventListener('run',doRun);bSub.onclick=doSubmit;
+  document.getElementById('bHint').onclick=()=>{document.getElementById('hint').classList.add('show');document.getElementById('bSol').style.display='';};
+  document.getElementById('bSol').onclick=()=>document.getElementById('sol').classList.toggle('show');
+  document.getElementById('bReset').onclick=()=>{ed.set(l.starter);toast('Kód vrácen na začátek');};
+}
+
+function complete(id){
+  const x=byId(id);const first=!S.done[id];let gain=0,worldBonus=false;
+  if(first){
+    S.done[id]=Date.now();gain+=XP_LESSON;
+    if(worldDone(x.w)){gain+=XP_WORLD;worldBonus=true;}
+    S.xp+=gain;
+  }
+  const t=today();if(!S.days.includes(t))S.days.push(t);
+  save();hud();
+  const nx=nextLesson();
+  document.getElementById('winIcon').textContent=worldBonus?x.w.icon:'🎉';
+  document.getElementById('winTitle').textContent=worldBonus?'Svět dokončen!':'Lekce splněna!';
+  document.getElementById('winText').innerHTML=worldBonus?`Získal jsi odznak <b>${esc(x.w.title)}</b>!`:(first?'Výborně, kód funguje.':'Tuhle už máš – ale opakování je matka moudrosti.');
+  document.getElementById('winXp').textContent=first?('+'+gain+' XP'):'+0 XP';
+  const nb=document.getElementById('winNext');
+  nb.textContent=nx?'Další lekce ➜':'Zpět na mapu';
+  nb.onclick=()=>{hideWin();location.hash=nx?'#lesson-'+nx:'#map';};
+  document.getElementById('win').classList.add('show');
+  if(first)confetti();
+}
+function hideWin(){document.getElementById('win').classList.remove('show');}
+document.getElementById('winStay').onclick=hideWin;
+
+function viewSandbox(){
+  setNav('sandbox');
+  const def='#include <iostream>\n#include <cmath>\nusing namespace std;\n\nint main() {\n    cout << "Pískoviště – zkoušej si cokoliv!" << endl;\n    for (int i = 1; i <= 5; i++) {\n        cout << i << " na druhou = " << pow(i, 2) << endl;\n    }\n    return 0;\n}\n';
+  app.innerHTML=`<div class="crumbs">🧪 Pískoviště – volné psaní kódu, nic se nehodnotí.</div>
+  <div class="grid"><div><div id="edhost"></div>
+   <div class="ed" style="margin-top:10px"><div class="io"><label>Vstup (stdin)</label><textarea id="stdin" placeholder="Vstup pro cin…">${esc(S.sbIn||'')}</textarea></div></div>
+   <div class="btns"><button class="b run" id="bRun">▶ Spustit</button><button class="b gh" id="bReset">↺ Výchozí</button></div></div>
+   <div><div class="out" id="out" style="min-height:200px"><div class="h">KONZOLE</div></div>
+   <div class="card" style="margin-top:14px"><h2 class="pix" style="font-size:10px">Co interpret umí</h2>
+   <p class="small" style="margin:0">✅ <code>iostream</code>, <code>cmath</code>, <code>cstring</code>, <code>cstdio</code>, proměnné, if/switch, cykly, funkce, rekurze, pole, 2D pole, ukazatele.<br>❌ <code>string</code>, <code>vector</code>, <code>class/struct</code>, reference <code>int&amp;</code>, <code>new</code>. Na ty použij g++ na PC.</p></div></div></div>`;
+  const host=document.getElementById('edhost');
+  const ed=editor(host,S.sb!=null?S.sb:def,v=>{S.sb=v;save();},'piskoviste.cpp');
+  const si=document.getElementById('stdin');si.oninput=()=>{S.sbIn=si.value;save();};
+  const out=document.getElementById('out'),bRun=document.getElementById('bRun');
+  async function doRun(){bRun.disabled=true;out.innerHTML='<div class="h">KONZOLE</div><span class="small">Běží…</span>';const r=await runCpp(ed.get(),si.value);bRun.disabled=false;
+    out.innerHTML='<div class="h">KONZOLE</div>'+esc(r.out||'')+(r.ok?'':'\n<span class="err">'+esc(prettyErr(r.err))+'</span>');}
+  bRun.onclick=doRun;host.addEventListener('run',doRun);
+  document.getElementById('bReset').onclick=()=>ed.set(def);
+}
+
+function viewProfile(){
+  setNav('profile');
+  const done=ALL.filter(x=>S.done[x.l.id]).length;
+  const lv=Math.floor(S.xp/XP_PER_LVL)+1;
+  let h=`<div class="crumbs">🏆 Profil</div><div class="kpis">
+   <div class="kpi"><b>${lv}</b><span>Level</span></div><div class="kpi"><b>${S.xp}</b><span>XP celkem</span></div>
+   <div class="kpi"><b>${done}/${ALL.length}</b><span>Lekcí hotovo</span></div><div class="kpi"><b>${streak()}</b><span>🔥 Dní v řadě</span></div></div>
+   <div class="card"><h2 class="pix">Odznaky</h2><div class="badges">`;
+  COURSE.forEach(w=>{const g=worldDone(w);h+=`<div class="badge${g?' got':''}"><div class="i">${w.icon}</div><div class="n">${esc(w.title)}</div><div class="d">${g?'Získáno':'Dokonči svět'}</div></div>`;});
+  const extra=[[done>=1,'⭐','První krok','1. lekce'],[streak()>=3,'🔥','Na vlně','3 dny v řadě'],[streak()>=7,'☄️','Týden v kuse','7 dní v řadě'],[done===ALL.length,'👑','C++ legenda','Vše hotovo']];
+  extra.forEach(([g,i,n,d])=>{h+=`<div class="badge${g?' got':''}"><div class="i">${i}</div><div class="n">${n}</div><div class="d">${d}</div></div>`;});
+  h+=`</div></div>
+  <div class="card"><h2 class="pix">Nastavení</h2>
+   <label class="switch"><input type="checkbox" id="ua" ${S.unlockAll?'checked':''}> Odemknout všechny lekce (volný režim)</label></div>
+  <div class="card"><h2 class="pix">Záloha postupu</h2>
+   <p class="small">Postup se ukládá jen v tomhle prohlížeči. Pro přenos na jiné zařízení zkopíruj kód zálohy a vlož ho tam.</p>
+   <textarea class="bk" id="bk" readonly></textarea>
+   <div class="row" style="margin-top:8px"><button class="b gh" id="cp">📋 Kopírovat</button></div>
+   <p class="small" style="margin-top:14px">Obnovit ze zálohy:</p>
+   <textarea class="bk" id="imp" placeholder="Vlož kód zálohy…"></textarea>
+   <div class="row" style="margin-top:8px"><button class="b gh" id="im">⬆ Obnovit</button><button class="b gh" id="rs" style="margin-left:auto;color:var(--bad)">Smazat postup</button></div></div>`;
+  app.innerHTML=h;
+  const code=btoa(unescape(encodeURIComponent(JSON.stringify(S))));
+  document.getElementById('bk').value=code;
+  document.getElementById('ua').onchange=e=>{S.unlockAll=e.target.checked;save();};
+  document.getElementById('cp').onclick=()=>{navigator.clipboard.writeText(code).then(()=>toast('Zkopírováno ✓'),()=>{document.getElementById('bk').select();toast('Označeno – zkopíruj ručně');});};
+  document.getElementById('im').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob(document.getElementById('imp').value.trim()))));if(!o.done)throw 0;S=Object.assign({done:{},code:{},xp:0,days:[]},o);save();hud();toast('Postup obnoven ✓');viewProfile();}catch(e){toast('Neplatný kód zálohy');}};
+  let armed=false;document.getElementById('rs').onclick=e=>{if(!armed){armed=true;e.target.textContent='Opravdu? Klikni znovu';return;}S={done:{},code:{},xp:0,days:[],unlockAll:false,hints:{}};save();hud();toast('Postup smazán');viewProfile();};
+}
+
+// ---------- misc ----------
+let tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(tt);tt=setTimeout(()=>t.style.display='none',2200);}
+function confetti(){
+  const c=document.getElementById('confetti'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const cols=['#ffd43b','#ff6b6b','#51cf66','#4dabf7','#e599f7','#ff922b'];
+  const P=Array.from({length:120},()=>({x:innerWidth/2,y:innerHeight/2,vx:(Math.random()-.5)*14,vy:Math.random()*-14-4,s:4+Math.random()*6,c:cols[Math.random()*cols.length|0],r:Math.random()*6}));
+  let f=0;(function a(){x.clearRect(0,0,c.width,c.height);P.forEach(p=>{p.vy+=.45;p.x+=p.vx;p.y+=p.vy;p.r+=.2;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6);x.restore();});if(++f<110)requestAnimationFrame(a);else x.clearRect(0,0,c.width,c.height);})();
+}
+function route(){
+  hideWin();const h=location.hash.slice(1);
+  if(h.startsWith('lesson-'))viewLesson(h.slice(7));
+  else if(h==='sandbox')viewSandbox();
+  else if(h==='profile')viewProfile();
+  else viewMap();
+  window.scrollTo(0,0);
+}
+addEventListener('hashchange',route);
+hud();route();
+})();
+</script>
+</body>
+</html>
