@@ -7,6 +7,8 @@ Moje cesta programováním. Začínám s C++, později přibudou další jazyky.
 | Složka | Co v ní je |
 |---|---|
 | `cpp/cppdex/` | C++dex, moje výuková stránka na C++ ve stylu Codédexu (lekce, XP, levely). Podrobnosti jsou v [README](cpp/cppdex/README.md). |
+| `app/` | Server pro TrueNAS, který web servíruje a spouští kód přes skutečný g++ a Python. Instalace je v [app/README.md](app/README.md). |
+| `Dockerfile` | Sestavení obrazu `ghcr.io/cpt-raccoon/programming-journey` (dělá GitHub Actions). |
 
 Další složky (`cpp/exercises/`, `cpp/projects/`, později `python/` a další jazyky) přibudou podle osnovy.
 
