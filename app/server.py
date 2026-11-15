@@ -191,6 +191,11 @@ class Handler(SimpleHTTPRequestHandler):
     def log_message(self, fmt, *args):
         pass
 
+    def list_directory(self, path):
+        # Výpis složek nikomu neukazujeme.
+        self.send_error(404, "Not found")
+        return None
+
     def _json(self, code, obj):
         body = json.dumps(obj).encode()
         self.send_response(code)

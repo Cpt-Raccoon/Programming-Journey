@@ -11,7 +11,7 @@ RUN apt-get update \
 COPY cpp/cppdex /build/cppdex
 RUN cd /build/cppdex && python3 build.py \
  && mkdir -p /app/static && cp cppdex.html /app/static/index.html \
- && cp -r icons /app/static/icons \
+ && cp -r icons /app/static/icons && rm -f /app/static/icons/make_icon.py \
  && rm -rf /build
 
 COPY app/server.py /app/server.py
