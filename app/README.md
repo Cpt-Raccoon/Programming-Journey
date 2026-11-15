@@ -25,7 +25,13 @@ Po změně v repu GitHub sestaví nový obraz. V TrueNASu pak aplikaci zastav a 
 
 ## Postup učení
 
-Zatím se ukládá v prohlížeči (localStorage), stejně jako v samostatném `cppdex.html`. Ukládání na NAS, aby šlo pokračovat z jiného zařízení, je další krok.
+Postup (XP, hotové lekce a rozepsaný kód) se ukládá na NAS do svazku `journey-data`, takže je stejný na PC, iPadu i mobilu. Když se učíš na dvou zařízeních, server postup sloučí: hotové lekce se sečtou a u kódu vyhraje novější úprava. Zároveň zůstává kopie v prohlížeči, takže když je server zrovna vypnutý, nic se neztratí a pošle se při příštím spuštění.
+
+Stav ukládání vidíš pod ⚙️ vpravo nahoře.
+
+### Aktualizace na verzi s ukládáním na NAS
+
+V TrueNASu otevři **Apps → programming-journey → Edit** a nahraď YAML obsahem nového [`compose.yaml`](compose.yaml) (přibyla sekce `volumes`). Ulož. Postup z prohlížeče se při prvním otevření sám nahraje na NAS.
 
 ## Lokální vývoj
 

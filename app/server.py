@@ -5,6 +5,9 @@ Jen standardní knihovna Pythonu, žádné závislosti.
   GET  /api/health      -> {"ok": true, "langs": [...]}
   POST /api/run         -> {"lang": "cpp"|"python", "code": "...", "input": "..."}
                            <- {"ok": bool, "out": "...", "err": "...", "phase": "compile"|"run"}
+  GET  /api/progress    -> uložený postup (JSON), {} když zatím žádný není
+  PUT  /api/progress    -> sloučí poslaný postup s uloženým a vrátí výsledek
+                           (s hlavičkou X-Reset: 1 uložený postup nahradí)
 """
 import json
 import os
@@ -27,7 +30,55 @@ MEM_LIMIT = 256 * 1024 * 1024
 # Uživatel, pod kterým běží odeslaný kód (v Dockeru "runner"); None = aktuální uživatel.
 RUN_UID = int(os.environ["RUN_UID"]) if os.environ.get("RUN_UID") else None
 
+DATA_DIR = os.environ.get("DATA_DIR", "")
+PROGRESS_FILE = os.path.join(DATA_DIR, "progress.json") if DATA_DIR else ""
+MAX_PROGRESS = 2 * 1024 * 1024
+
 slots = threading.BoundedSemaphore(MAX_PARALLEL)
+progress_lock = threading.Lock()
+
+
+def load_progress():
+    if not PROGRESS_FILE or not os.path.exists(PROGRESS_FILE):
+        return {}
+    with open(PROGRESS_FILE, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_progress(state):
+    tmp = PROGRESS_FILE + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, PROGRESS_FILE)
+
+
+def merge_progress(old, new):
+    """Sloučí postup ze dvou zařízení tak, aby se nic hotového neztratilo.
+
+    Hotové lekce, dny a nápovědy se sjednotí (u lekce platí dřívější čas splnění),
+    kód se přepíše tím novějším po lekcích, ostatní nastavení vezme poslední zápis.
+    """
+    if not isinstance(old, dict):
+        old = {}
+    out = {**old, **new}
+    done = dict(old.get("done") or {})
+    for k, v in (new.get("done") or {}).items():
+        done[k] = min(done[k], v) if k in done and isinstance(done[k], (int, float)) and isinstance(v, (int, float)) else v
+    out["done"] = done
+    out["days"] = sorted(set(old.get("days") or []) | set(new.get("days") or []))
+    out["hints"] = {**(old.get("hints") or {}), **(new.get("hints") or {})}
+    # kód po lekcích: vyhrává ten s novějším časem úpravy (codeTs)
+    code, ts = dict(old.get("code") or {}), dict(old.get("codeTs") or {})
+    nts = new.get("codeTs") or {}
+    for k, v in (new.get("code") or {}).items():
+        if k not in code or (nts.get(k) or 0) >= (ts.get(k) or 0):
+            code[k] = v
+            ts[k] = nts.get(k) or ts.get(k) or 0
+    out["code"], out["codeTs"] = code, ts
+    out["xp"] = max(int(old.get("xp") or 0), int(new.get("xp") or 0))
+    return out
 
 
 def _limits_for(cpu, mem, fsize):
@@ -150,8 +201,30 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/api/health":
-            return self._json(200, {"ok": True, "langs": ["cpp", "python"]})
+            return self._json(200, {"ok": True, "langs": ["cpp", "python"], "progress": bool(PROGRESS_FILE)})
+        if self.path == "/api/progress":
+            if not PROGRESS_FILE:
+                return self._json(404, {"ok": False, "err": "Ukládání na server není zapnuté"})
+            with progress_lock:
+                return self._json(200, load_progress())
         return super().do_GET()
+
+    def do_PUT(self):
+        if self.path != "/api/progress" or not PROGRESS_FILE:
+            return self._json(404, {"ok": False, "err": "not found"})
+        try:
+            n = int(self.headers.get("Content-Length", "0"))
+            if n > MAX_PROGRESS:
+                return self._json(413, {"ok": False, "err": "Postup je moc velký"})
+            new = json.loads(self.rfile.read(n) or b"{}")
+            if not isinstance(new, dict):
+                raise ValueError
+        except Exception:
+            return self._json(400, {"ok": False, "err": "Špatný požadavek"})
+        with progress_lock:
+            merged = new if self.headers.get("X-Reset") == "1" else merge_progress(load_progress(), new)
+            save_progress(merged)
+        return self._json(200, merged)
 
     def do_POST(self):
         if self.path != "/api/run":
@@ -175,5 +248,16 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    if DATA_DIR:
+        try:
+            os.makedirs(DATA_DIR, exist_ok=True)
+            os.chmod(DATA_DIR, 0o700)  # spouštěný kód (uživatel runner) sem nevidí
+            probe = os.path.join(DATA_DIR, ".probe")
+            open(probe, "w").close()
+            os.unlink(probe)
+            print(f"Postup se ukládá do {PROGRESS_FILE}", flush=True)
+        except OSError as e:
+            print(f"Do {DATA_DIR} nejde zapisovat ({e}), postup zůstane jen v prohlížeči.", flush=True)
+            PROGRESS_FILE = ""
     print(f"Programming Journey běží na portu {PORT}", flush=True)
     ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
