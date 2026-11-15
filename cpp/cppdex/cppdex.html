@@ -2092,6 +2092,296 @@ body = [(0, 1), (2, 2)]</pre>`,
     must:['get\\(|\\bin\\s+sklad','sorted\\('],
     hint:'Podle casti[0] rozhodni, co dělat. Na nulu zkontroluj po odebrání a smaž přes del sklad[vec].'},
   ]
+},
+{
+  id:'py9', title:'Chyby a soubory', icon:'🛡️', color:'#f06595',
+  desc:'try/except, raise, zápis a čtení souborů.',
+  lessons:[
+  { id:'py9l1', title:'try a except',
+    theory:`<p>Když něco může selhat, dej to do <code>try</code>. Při chybě program nespadne, ale skočí do <code>except</code>:</p>
+<pre>try:
+    x = int(input())
+    print("OK")
+except ValueError:
+    print("To není číslo")</pre>`,
+    task:`Načti vstup. Když je to celé číslo, vypiš <b>Číslo: X</b>. Jinak vypiš <b>To není číslo</b>.`,
+    starter:`x = int(input())\nprint(f"Číslo: {x}")\n`,
+    stdin:'abc',
+    solution:`try:\n    x = int(input())\n    print(f"Číslo: {x}")\nexcept ValueError:\n    print("To není číslo")\n`,
+    tests:[{in:'42',out:'Číslo: 42'},{in:'abc',out:'To není číslo'},{in:'-7',out:'Číslo: -7'}],
+    must:['try','except ValueError'],
+    hint:'Oba řádky dej do try:, pod to except ValueError: print("To není číslo").'},
+  { id:'py9l2', title:'Víc druhů chyb',
+    theory:`<p>Za jeden <code>try</code> můžeš dát víc <code>except</code>, pro každý druh chyby jiný:</p>
+<pre>try:
+    ...
+except ValueError:
+    print("špatné číslo")
+except ZeroDivisionError:
+    print("dělení nulou")</pre>`,
+    task:`Načti dvě čísla a vypiš jejich podíl na 2 desetinná místa. Při dělení nulou vypiš <b>Nulou dělit nejde</b>, při špatném vstupu <b>Zadej čísla</b>.`,
+    starter:`a = int(input())\nb = int(input())\nprint(f"{a / b:.2f}")\n`,
+    stdin:'7\n2',
+    solution:`try:\n    a = int(input())\n    b = int(input())\n    print(f"{a / b:.2f}")\nexcept ZeroDivisionError:\n    print("Nulou dělit nejde")\nexcept ValueError:\n    print("Zadej čísla")\n`,
+    tests:[{in:'7\n2',out:'3.50'},{in:'5\n0',out:'Nulou dělit nejde'},{in:'x\n2',out:'Zadej čísla'}],
+    must:['ZeroDivisionError','ValueError'],
+    hint:'Celý výpočet do try:, pod něj dva except.'},
+  { id:'py9l3', title:'raise',
+    theory:`<p>Chybu můžeš vyvolat i sám přes <code>raise</code>. Hodí se, když funkce dostane nesmysl:</p>
+<pre>def nastav_vek(v):
+    if v < 0:
+        raise ValueError("Věk nesmí být záporný")
+    return v</pre>
+<p>Text chyby získáš přes <code>except ValueError as e:</code> a <code>print(e)</code>.</p>`,
+    task:`Napiš <code>nastav_vek(v)</code>, která pro záporný věk vyvolá <code>ValueError("Věk nesmí být záporný")</code> a pro věk nad 150 <code>ValueError("To je moc")</code>. Načti věk a vypiš <b>Věk je X</b>, nebo text chyby.`,
+    starter:`def nastav_vek(v):\n    return v\n\nv = int(input())\nprint(f"Věk je {nastav_vek(v)}")\n`,
+    stdin:'-3',
+    solution:`def nastav_vek(v):\n    if v < 0:\n        raise ValueError("Věk nesmí být záporný")\n    if v > 150:\n        raise ValueError("To je moc")\n    return v\n\nv = int(input())\ntry:\n    print(f"Věk je {nastav_vek(v)}")\nexcept ValueError as e:\n    print(e)\n`,
+    tests:[{in:'30',out:'Věk je 30'},{in:'-3',out:'Věk nesmí být záporný'},{in:'200',out:'To je moc'}],
+    must:['raise ValueError','except ValueError as'],
+    hint:'Ve funkci dvě podmínky s raise. Volání obal do try a v except vypiš e.'},
+  { id:'py9l4', title:'Zápis do souboru',
+    theory:`<p>Soubor otevřeš přes <code>open</code>. Nejlíp s <code>with</code>, ten soubor sám zavře:</p>
+<pre>with open("poznamky.txt", "w") as f:
+    f.write("první řádek\\n")
+
+with open("poznamky.txt") as f:
+    for radek in f:
+        print(radek.strip())</pre>
+<p><code>"w"</code> znamená zápis (přepíše soubor), bez něj se čte. <code>strip()</code> odstraní konec řádku.</p>`,
+    task:`Načti 3 řádky a zapiš je do souboru <code>poznamky.txt</code>. Pak soubor přečti a vypiš řádky očíslované, třeba <b>1: nakoupit</b>.`,
+    starter:`radky = [input(), input(), input()]\n`,
+    stdin:'nakoupit\nuklidit\nučit se Python',
+    solution:`radky = [input(), input(), input()]\nwith open("poznamky.txt", "w") as f:\n    for r in radky:\n        f.write(r + "\\n")\n\ncislo = 1\nwith open("poznamky.txt") as f:\n    for radek in f:\n        print(f"{cislo}: {radek.strip()}")\n        cislo += 1\n`,
+    tests:[{in:'nakoupit\nuklidit\nučit se Python',out:'1: nakoupit\n2: uklidit\n3: učit se Python'},{in:'a\nb\nc',out:'1: a\n2: b\n3: c'}],
+    must:['with open','"w"|\'w\'','write\\('],
+    hint:'Při zápisu přidej ke každému řádku "\\n". Při čtení počítej řádky proměnnou.'},
+  { id:'py9l5', title:'Připisování',
+    theory:`<p>Režim <code>"a"</code> (append) připisuje na konec a starý obsah nechá:</p>
+<pre>with open("denik.txt", "a") as f:
+    f.write("další den\\n")</pre>
+<p><code>f.readlines()</code> načte všechny řádky do seznamu.</p>`,
+    task:`Zapiš do <code>denik.txt</code> řádek <b>Den 1</b> (režim <code>"w"</code>). Pak načti počet <code>n</code> a <code>n</code> řádků a připiš je (režim <code>"a"</code>). Nakonec vypiš <b>Řádků: X</b> a celý obsah deníku.`,
+    starter:`with open("denik.txt", "w") as f:\n    f.write("Den 1\\n")\n`,
+    stdin:'2\nDen 2\nDen 3',
+    solution:`with open("denik.txt", "w") as f:\n    f.write("Den 1\\n")\nn = int(input())\nwith open("denik.txt", "a") as f:\n    for i in range(n):\n        f.write(input() + "\\n")\nwith open("denik.txt") as f:\n    radky = f.readlines()\nprint(f"Řádků: {len(radky)}")\nfor r in radky:\n    print(r.strip())\n`,
+    tests:[{in:'2\nDen 2\nDen 3',out:'Řádků: 3\nDen 1\nDen 2\nDen 3'},{in:'0',out:'Řádků: 1\nDen 1'}],
+    must:['"a"|\'a\'','readlines\\('],
+    hint:'Druhý open s "a", třetí bez režimu pro čtení. len(radky) je počet řádků.'},
+  { id:'py9l6', title:'Soubor neexistuje',
+    theory:`<p>Když soubor není, <code>open</code> skončí chybou <code>FileNotFoundError</code>. Chytíš ji jako každou jinou:</p>
+<pre>try:
+    with open("x.txt") as f:
+        print(f.read())
+except FileNotFoundError:
+    print("Soubor nenalezen")</pre>
+<p><code>f.read()</code> načte celý soubor jako jeden text.</p>`,
+    task:`Program si vytvoří soubor <code>data.txt</code>. Pak načte jméno souboru ze vstupu. Vypiš jeho obsah, nebo <b>Soubor nenalezen</b>.`,
+    starter:`with open("data.txt", "w") as f:\n    f.write("ahoj ze souboru")\n\njmeno = input()\n`,
+    stdin:'data.txt',
+    solution:`with open("data.txt", "w") as f:\n    f.write("ahoj ze souboru")\n\njmeno = input()\ntry:\n    with open(jmeno) as f:\n        print(f.read())\nexcept FileNotFoundError:\n    print("Soubor nenalezen")\n`,
+    tests:[{in:'data.txt',out:'ahoj ze souboru'},{in:'neni.txt',out:'Soubor nenalezen'}],
+    must:['FileNotFoundError'],
+    hint:'open(jmeno) dej do try:, pod to except FileNotFoundError:.'},
+  ]
+},
+{
+  id:'py10', title:'Třídy a objekty', icon:'🏗️', color:'#38d9a9',
+  desc:'class, __init__, metody, __str__, dědičnost. Na konci projekt Knihovna.',
+  lessons:[
+  { id:'py10l1', title:'class a __init__',
+    theory:`<p>Třída je plán, podle kterého se vyrábí <b>objekty</b>. <code>__init__</code> se zavolá při vytvoření objektu a nastaví jeho data. <code>self</code> je ten konkrétní objekt:</p>
+<pre>class Pes:
+    def __init__(self, jmeno, vek):
+        self.jmeno = jmeno
+        self.vek = vek
+
+rex = Pes("Rex", 3)
+print(rex.jmeno)   # Rex</pre>`,
+    task:`Napiš třídu <code>Kocka</code> s vlastnostmi <code>jmeno</code> a <code>vek</code>. Vytvoř Micku (3) a Toma (5) a vypiš:<pre>Micka, věk 3
+Tom, věk 5</pre>`,
+    starter:`# class Kocka:\n\n`,
+    solution:`class Kocka:\n    def __init__(self, jmeno, vek):\n        self.jmeno = jmeno\n        self.vek = vek\n\nk1 = Kocka("Micka", 3)\nk2 = Kocka("Tom", 5)\nfor k in [k1, k2]:\n    print(f"{k.jmeno}, věk {k.vek}")\n`,
+    tests:[{in:'',out:'Micka, věk 3\nTom, věk 5'}],
+    must:['class Kocka','def __init__\\(\\s*self','Kocka\\('],
+    hint:'V __init__ ulož self.jmeno = jmeno a self.vek = vek. Pak k1 = Kocka("Micka", 3).'},
+  { id:'py10l2', title:'Metody',
+    theory:`<p>Metoda je funkce uvnitř třídy. Vždy dostane <code>self</code>, takže vidí data objektu:</p>
+<pre>class Pocitadlo:
+    def __init__(self):
+        self.hodnota = 0
+    def pricti(self):
+        self.hodnota += 1
+
+p = Pocitadlo()
+p.pricti()</pre>`,
+    task:`Napiš třídu <code>Ucet</code> se zůstatkem 0 a metodami <code>vloz(castka)</code> a <code>vyber(castka)</code>. <code>vyber</code> vrátí <code>False</code> a nic nezmění, když peníze nestačí. Na vstupu je počet operací a pak řádky <code>vloz 100</code> nebo <code>vyber 50</code>. Při neúspěšném výběru vypiš <b>Nedostatek peněz</b>. Na konci <b>Zůstatek: X</b>.`,
+    starter:`class Ucet:\n    def __init__(self):\n        self.zustatek = 0\n\nucet = Ucet()\nn = int(input())\n`,
+    stdin:'3\nvloz 100\nvyber 30\nvyber 500',
+    solution:`class Ucet:\n    def __init__(self):\n        self.zustatek = 0\n\n    def vloz(self, castka):\n        self.zustatek += castka\n\n    def vyber(self, castka):\n        if castka > self.zustatek:\n            return False\n        self.zustatek -= castka\n        return True\n\nucet = Ucet()\nn = int(input())\nfor i in range(n):\n    prikaz, castka = input().split()\n    if prikaz == "vloz":\n        ucet.vloz(int(castka))\n    elif not ucet.vyber(int(castka)):\n        print("Nedostatek peněz")\nprint(f"Zůstatek: {ucet.zustatek}")\n`,
+    tests:[{in:'3\nvloz 100\nvyber 30\nvyber 500',out:'Nedostatek peněz\nZůstatek: 70'},{in:'1\nvyber 1',out:'Nedostatek peněz\nZůstatek: 0'},{in:'2\nvloz 5\nvyber 5',out:'Zůstatek: 0'}],
+    must:['def vloz\\(\\s*self','def vyber\\(\\s*self','return False'],
+    hint:'Ve vyber: když castka > self.zustatek, return False. Jinak odečti a return True.'},
+  { id:'py10l3', title:'__str__',
+    theory:`<p>Když objekt vypíšeš přes <code>print</code>, Python zavolá jeho metodu <code>__str__</code>. Ta vrátí text, jak má objekt vypadat:</p>
+<pre>class Bod:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def __str__(self):
+        return f"({self.x}, {self.y})"</pre>`,
+    task:`Napiš třídu <code>Bod</code> s <code>__str__</code> ve tvaru <b>(x, y)</b> a metodou <code>vzdalenost()</code>, která vrátí vzdálenost od počátku (<code>(x*x + y*y) ** 0.5</code>). Načti <code>x y</code>, vypiš bod a pod to vzdálenost na 2 desetinná místa.`,
+    starter:`x, y = input().split()\n`,
+    stdin:'3 4',
+    solution:`class Bod:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def __str__(self):\n        return f"({self.x}, {self.y})"\n\n    def vzdalenost(self):\n        return (self.x * self.x + self.y * self.y) ** 0.5\n\nx, y = input().split()\nb = Bod(int(x), int(y))\nprint(b)\nprint(f"{b.vzdalenost():.2f}")\n`,
+    tests:[{in:'3 4',out:'(3, 4)\n5.00'},{in:'1 1',out:'(1, 1)\n1.41'},{in:'0 -2',out:'(0, -2)\n2.00'}],
+    must:['def __str__','print\\(\\s*b\\s*\\)|print\\(\\s*\\w+\\s*\\)'],
+    hint:'__str__ vrací f"({self.x}, {self.y})". Pak stačí print(b).'},
+  { id:'py10l4', title:'Dědičnost',
+    theory:`<p>Třída může <b>dědit</b> z jiné. Dostane všechno, co má rodič, a může něco přepsat:</p>
+<pre>class Zvire:
+    def __init__(self, jmeno):
+        self.jmeno = jmeno
+    def zvuk(self):
+        return "..."
+    def predstav(self):
+        return f"{self.jmeno} dělá {self.zvuk()}"
+
+class Pes(Zvire):
+    def zvuk(self):
+        return "Haf"</pre>
+<p><code>Pes("Rex").predstav()</code> vrátí <b>Rex dělá Haf</b>, i když <code>predstav</code> je napsané jen v rodiči.</p>`,
+    task:`Doplň třídy <code>Pes</code> (Haf) a <code>Kocka</code> (Mňau), obě dědí ze <code>Zvire</code>. Na vstupu je počet zvířat a řádky <code>pes Rex</code> nebo <code>kocka Micka</code>. Pro každé vypiš <code>predstav()</code>.`,
+    starter:`class Zvire:\n    def __init__(self, jmeno):\n        self.jmeno = jmeno\n\n    def zvuk(self):\n        return "..."\n\n    def predstav(self):\n        return f"{self.jmeno} dělá {self.zvuk()}"\n\nn = int(input())\n`,
+    stdin:'2\npes Rex\nkocka Micka',
+    solution:`class Zvire:\n    def __init__(self, jmeno):\n        self.jmeno = jmeno\n\n    def zvuk(self):\n        return "..."\n\n    def predstav(self):\n        return f"{self.jmeno} dělá {self.zvuk()}"\n\nclass Pes(Zvire):\n    def zvuk(self):\n        return "Haf"\n\nclass Kocka(Zvire):\n    def zvuk(self):\n        return "Mňau"\n\nn = int(input())\nfor i in range(n):\n    druh, jmeno = input().split()\n    if druh == "pes":\n        z = Pes(jmeno)\n    else:\n        z = Kocka(jmeno)\n    print(z.predstav())\n`,
+    tests:[{in:'2\npes Rex\nkocka Micka',out:'Rex dělá Haf\nMicka dělá Mňau'},{in:'1\nkocka Tom',out:'Tom dělá Mňau'}],
+    must:['class Pes\\(\\s*Zvire\\s*\\)','class Kocka\\(\\s*Zvire\\s*\\)'],
+    hint:'class Pes(Zvire): a uvnitř jen metoda zvuk, která vrací "Haf".'},
+  { id:'py10l5', title:'super()',
+    theory:`<p>Když potomek potřebuje vlastní <code>__init__</code>, zavolá nejdřív ten rodičovský přes <code>super()</code>:</p>
+<pre>class Osoba:
+    def __init__(self, jmeno):
+        self.jmeno = jmeno
+
+class Student(Osoba):
+    def __init__(self, jmeno, obor):
+        super().__init__(jmeno)
+        self.obor = obor</pre>`,
+    task:`Doplň třídu <code>Student</code>, která dědí z <code>Osoba</code> a přidá <code>obor</code>. Načti jméno a obor a vypiš <b>Tom studuje informatiku</b>.`,
+    starter:`class Osoba:\n    def __init__(self, jmeno):\n        self.jmeno = jmeno\n\njmeno = input()\nobor = input()\n`,
+    stdin:'Tom\ninformatiku',
+    solution:`class Osoba:\n    def __init__(self, jmeno):\n        self.jmeno = jmeno\n\nclass Student(Osoba):\n    def __init__(self, jmeno, obor):\n        super().__init__(jmeno)\n        self.obor = obor\n\njmeno = input()\nobor = input()\ns = Student(jmeno, obor)\nprint(f"{s.jmeno} studuje {s.obor}")\n`,
+    tests:[{in:'Tom\ninformatiku',out:'Tom studuje informatiku'},{in:'Eva\nmedicínu',out:'Eva studuje medicínu'}],
+    must:['class Student\\(\\s*Osoba\\s*\\)','super\\(\\)\\.__init__'],
+    hint:'V __init__ Studenta napiš super().__init__(jmeno) a pak self.obor = obor.'},
+  { id:'py10p1', title:'Knihovna', project:true,
+    theory:`<p>🏁 <b>Projekt.</b> Dvě třídy, které spolupracují: <code>Kniha</code> (název, autor, jestli je půjčená) a <code>Knihovna</code> (seznam knih a metody).</p>
+<p>Příkazy jsou oddělené středníkem, protože názvy knih mají mezery: <code>"pridej;Malý princ;Saint-Exupéry".split(";")</code>.</p>`,
+    task:`Na vstupu je počet příkazů a pak příkazy:<ul>
+<li><code>pridej;název;autor</code>: přidá knihu (nic nevypíše)</li>
+<li><code>pujc;název</code>: <b>Půjčeno: název</b>, nebo <b>Už je půjčená: název</b>, nebo <b>Nemáme: název</b></li>
+<li><code>vrat;název</code>: <b>Vráceno: název</b>, nebo <b>Nebyla půjčená: název</b> (i když ji nemáme)</li>
+<li><code>seznam</code>: každou knihu v pořadí přidání jako <b>název (autor) - volná</b> nebo <b>- půjčená</b></li></ul>`,
+    starter:`class Kniha:\n    pass\n\nclass Knihovna:\n    pass\n\nn = int(input())\n`,
+    stdin:'5\npridej;Hobit;Tolkien\npridej;Malý princ;Saint-Exupéry\npujc;Hobit\npujc;Hobit\nseznam',
+    solution:`class Kniha:\n    def __init__(self, nazev, autor):\n        self.nazev = nazev\n        self.autor = autor\n        self.pujcena = False\n\n    def __str__(self):\n        stav = "půjčená" if self.pujcena else "volná"\n        return f"{self.nazev} ({self.autor}) - {stav}"\n\nclass Knihovna:\n    def __init__(self):\n        self.knihy = []\n\n    def najdi(self, nazev):\n        for k in self.knihy:\n            if k.nazev == nazev:\n                return k\n        return None\n\n    def pridej(self, nazev, autor):\n        self.knihy.append(Kniha(nazev, autor))\n\n    def pujc(self, nazev):\n        k = self.najdi(nazev)\n        if k is None:\n            print(f"Nemáme: {nazev}")\n        elif k.pujcena:\n            print(f"Už je půjčená: {nazev}")\n        else:\n            k.pujcena = True\n            print(f"Půjčeno: {nazev}")\n\n    def vrat(self, nazev):\n        k = self.najdi(nazev)\n        if k is None or not k.pujcena:\n            print(f"Nebyla půjčená: {nazev}")\n        else:\n            k.pujcena = False\n            print(f"Vráceno: {nazev}")\n\n    def seznam(self):\n        for k in self.knihy:\n            print(k)\n\nknihovna = Knihovna()\nn = int(input())\nfor i in range(n):\n    casti = input().split(";")\n    if casti[0] == "pridej":\n        knihovna.pridej(casti[1], casti[2])\n    elif casti[0] == "pujc":\n        knihovna.pujc(casti[1])\n    elif casti[0] == "vrat":\n        knihovna.vrat(casti[1])\n    elif casti[0] == "seznam":\n        knihovna.seznam()\n`,
+    tests:[
+      {in:'5\npridej;Hobit;Tolkien\npridej;Malý princ;Saint-Exupéry\npujc;Hobit\npujc;Hobit\nseznam',out:'Půjčeno: Hobit\nUž je půjčená: Hobit\nHobit (Tolkien) - půjčená\nMalý princ (Saint-Exupéry) - volná'},
+      {in:'4\npujc;Duna\npridej;Duna;Herbert\nvrat;Duna\npujc;Duna',out:'Nemáme: Duna\nNebyla půjčená: Duna\nPůjčeno: Duna'},
+      {in:'5\npridej;R.U.R.;Čapek\npujc;R.U.R.\nvrat;R.U.R.\nvrat;R.U.R.\nseznam',out:'Půjčeno: R.U.R.\nVráceno: R.U.R.\nNebyla půjčená: R.U.R.\nR.U.R. (Čapek) - volná'}],
+    must:['class Kniha','class Knihovna','def __init__'],
+    hint:'Knihovna si drží seznam objektů Kniha. Pomocná metoda najdi(nazev) vrátí knihu nebo None.'},
+  ]
+},
+{
+  id:'py11', title:'Moduly a finále', icon:'🎓', color:'#fab005',
+  desc:'import, list comprehension, lambda, enumerate a zip. Na konci velký projekt.',
+  lessons:[
+  { id:'py11l1', title:'import math',
+    theory:`<p>Python má spoustu hotových <b>modulů</b>. Načteš je přes <code>import</code>:</p>
+<pre>import math
+math.pi          # 3.14159…
+math.sqrt(16)    # 4.0
+math.ceil(2.1)   # 3</pre>
+<p>Modul <code>random</code> umí náhodu: <code>random.randint(1, 6)</code> hodí kostkou. Do testů se náhoda nehodí, proto ji tu jen zmiňujeme.</p>`,
+    task:`Načti poloměr kruhu (desetinné číslo) a vypiš obvod a obsah na 2 desetinná místa:<pre>Obvod: 12.57
+Obsah: 12.57</pre>`,
+    starter:`r = float(input())\n`,
+    stdin:'2',
+    solution:`import math\n\nr = float(input())\nprint(f"Obvod: {2 * math.pi * r:.2f}")\nprint(f"Obsah: {math.pi * r ** 2:.2f}")\n`,
+    tests:[{in:'2',out:'Obvod: 12.57\nObsah: 12.57'},{in:'1',out:'Obvod: 6.28\nObsah: 3.14'},{in:'0.5',out:'Obvod: 3.14\nObsah: 0.79'}],
+    must:['import math','math\\.pi'],
+    hint:'Obvod je 2 * math.pi * r, obsah math.pi * r ** 2.'},
+  { id:'py11l2', title:'from … import',
+    theory:`<p>Z modulu můžeš vzít jen jednu věc, pak nemusíš psát jméno modulu:</p>
+<pre>from datetime import date
+d = date.fromisoformat("2026-12-24")
+(d - date.fromisoformat("2026-12-01")).days   # 23</pre>`,
+    task:`Načti dvě data ve tvaru <code>RRRR-MM-DD</code> a vypiš, kolik dní je mezi nimi, třeba <b>Zbývá 39 dní</b>.`,
+    starter:`a = input()\nb = input()\n`,
+    stdin:'2026-11-15\n2026-12-24',
+    solution:`from datetime import date\n\na = date.fromisoformat(input())\nb = date.fromisoformat(input())\nprint(f"Zbývá {(b - a).days} dní")\n`,
+    tests:[{in:'2026-11-15\n2026-12-24',out:'Zbývá 39 dní'},{in:'2026-01-01\n2027-01-01',out:'Zbývá 365 dní'}],
+    must:['from datetime import'],
+    hint:'date.fromisoformat převede text na datum. Rozdíl dvou dat má vlastnost .days.'},
+  { id:'py11l3', title:'List comprehension',
+    theory:`<p>Krátký zápis, jak z jednoho seznamu udělat jiný:</p>
+<pre>cisla = [1, 2, 3, 4]
+[x * x for x in cisla]              # [1, 4, 9, 16]
+[x for x in cisla if x % 2 == 0]    # [2, 4]
+[int(x) for x in "1 2".split()]     # [1, 2]</pre>`,
+    task:`Načti řádek čísel. Jedním zápisem <code>[... for ... in ...]</code> vytvoř seznam druhých mocnin sudých čísel a vypiš ho mezerou.`,
+    starter:`cisla = [int(x) for x in input().split()]\n`,
+    stdin:'1 2 3 4 5 6',
+    solution:`cisla = [int(x) for x in input().split()]\nmocniny = [x * x for x in cisla if x % 2 == 0]\nprint(*mocniny)\n`,
+    tests:[{in:'1 2 3 4 5 6',out:'4 16 36'},{in:'10 3',out:'100'}],
+    must:['\\[\\s*x\\s*\\*\\s*x\\s+for .* if '],
+    hint:'[x * x for x in cisla if x % 2 == 0]'},
+  { id:'py11l4', title:'Řazení podle klíče',
+    theory:`<p><code>sorted</code> umí řadit podle vlastního <b>klíče</b>. Klíč je funkce, často krátká <code>lambda</code>:</p>
+<pre>hraci = [("Tom", 10), ("Eva", 12)]
+sorted(hraci, key=lambda h: h[1])       # podle bodů
+sorted(hraci, key=lambda h: -h[1])      # sestupně</pre>
+<p>Klíč může být i dvojice: <code>(-h[1], h[0])</code> řadí podle bodů sestupně a při shodě podle jména.</p>`,
+    task:`Načti počet hráčů a řádky <code>jméno body</code>. Vypiš žebříček podle bodů sestupně, při shodě podle jména: <b>1. Eva 12</b>.`,
+    starter:`n = int(input())\nhraci = []\nfor i in range(n):\n    jmeno, body = input().split()\n    hraci.append((jmeno, int(body)))\n`,
+    stdin:'3\nTom 10\nEva 12\nAda 10',
+    solution:`n = int(input())\nhraci = []\nfor i in range(n):\n    jmeno, body = input().split()\n    hraci.append((jmeno, int(body)))\nporadi = sorted(hraci, key=lambda h: (-h[1], h[0]))\nfor i in range(len(poradi)):\n    print(f"{i + 1}. {poradi[i][0]} {poradi[i][1]}")\n`,
+    tests:[{in:'3\nTom 10\nEva 12\nAda 10',out:'1. Eva 12\n2. Ada 10\n3. Tom 10'},{in:'1\nZoe 5',out:'1. Zoe 5'}],
+    must:['lambda'],
+    hint:'sorted(hraci, key=lambda h: (-h[1], h[0]))'},
+  { id:'py11l5', title:'enumerate a zip',
+    theory:`<p><code>enumerate</code> dá ke každému prvku i jeho pořadí. <code>zip</code> spáruje dva seznamy:</p>
+<pre>for i, jmeno in enumerate(["Tom", "Eva"], 1):
+    print(i, jmeno)          # 1 Tom, 2 Eva
+
+for a, b in zip(["x", "y"], [1, 2]):
+    print(a, b)              # x 1, y 2</pre>`,
+    task:`Na prvním řádku jsou jména, na druhém body (ve stejném pořadí). Vypiš <b>1. Tom: 10</b> pro každého. Použij <code>enumerate</code> i <code>zip</code>.`,
+    starter:`jmena = input().split()\nbody = input().split()\n`,
+    stdin:'Tom Eva Ada\n10 12 7',
+    solution:`jmena = input().split()\nbody = input().split()\nfor i, (jmeno, b) in enumerate(zip(jmena, body), 1):\n    print(f"{i}. {jmeno}: {b}")\n`,
+    tests:[{in:'Tom Eva Ada\n10 12 7',out:'1. Tom: 10\n2. Eva: 12\n3. Ada: 7'},{in:'X\n0',out:'1. X: 0'}],
+    must:['enumerate\\(','zip\\('],
+    hint:'for i, (jmeno, b) in enumerate(zip(jmena, body), 1):'},
+  { id:'py11p1', title:'Finále: Rozbor textu', project:true,
+    theory:`<p>🏁 <b>Finále kurzu.</b> Napíšeš malý nástroj na rozbor textu. Použij funkce, slovník, cykly, <code>sorted</code> s klíčem a všechno, co umíš.</p>
+<p>Slova ber malými písmeny a bez znaků <code>. , ! ?</code> na krajích: <code>slovo.strip(".,!?").lower()</code>.</p>`,
+    task:`Na vstupu je počet řádků a pak řádky textu. Vypiš:<pre>Řádků: 3
+Slov: 10
+Nejčastější: pes (3)
+Nejdelší: kočička</pre>Při shodě v počtu vyhraje slovo dřív v abecedě. Nejdelší je první nejdelší slovo v textu.`,
+    starter:`n = int(input())\nradky = [input() for i in range(n)]\n`,
+    stdin:'3\nPes štěká.\nKočička a pes!\nPes, myš, sýr a strom.',
+    solution:`def slova_z(radky):\n    vysledek = []\n    for r in radky:\n        for s in r.split():\n            s = s.strip(".,!?").lower()\n            if s:\n                vysledek.append(s)\n    return vysledek\n\ndef nejcastejsi(slova):\n    pocty = {}\n    for s in slova:\n        pocty[s] = pocty.get(s, 0) + 1\n    return sorted(pocty.items(), key=lambda p: (-p[1], p[0]))[0]\n\nn = int(input())\nradky = [input() for i in range(n)]\nslova = slova_z(radky)\nprint(f"Řádků: {len(radky)}")\nprint(f"Slov: {len(slova)}")\nslovo, pocet = nejcastejsi(slova)\nprint(f"Nejčastější: {slovo} ({pocet})")\nnejdelsi = slova[0]\nfor s in slova:\n    if len(s) > len(nejdelsi):\n        nejdelsi = s\nprint(f"Nejdelší: {nejdelsi}")\n`,
+    tests:[
+      {in:'3\nPes štěká.\nKočička a pes!\nPes, myš, sýr a strom.',out:'Řádků: 3\nSlov: 10\nNejčastější: pes (3)\nNejdelší: kočička'},
+      {in:'1\nb a b a c',out:'Řádků: 1\nSlov: 5\nNejčastější: a (2)\nNejdelší: b'},
+      {in:'2\nAhoj světe!\nahoj Pythone, ahoj.',out:'Řádků: 2\nSlov: 5\nNejčastější: ahoj (3)\nNejdelší: pythone'}],
+    must:['def ','get\\(|Counter','sorted\\(|max\\('],
+    hint:'Rozděl to na funkce: jedna vytáhne slova, druhá spočítá nejčastější. Nejčastější: sorted(pocty.items(), key=lambda p: (-p[1], p[0]))[0].'},
+  ]
 }
 ];
 
@@ -2158,6 +2448,28 @@ py8: [
   {q:`Co vypíše <code>len(set([1, 1, 2, 2, 2]))</code>?`, o:[`5`,`2`,`3`], a:1, e:`Množina si každou hodnotu pamatuje jen jednou.`},
   {q:`Co dělá <code>for k, v in d.items():</code>?`, o:[`Projde jen klíče`,`Projde dvojice klíč a hodnota`,`Projde jen hodnoty`], a:1, e:`<code>items()</code> dává dvojice. Samotné <code>for k in d</code> dá jen klíče.`},
   {q:`Jaký je hlavní rozdíl mezi tuple a seznamem?`, o:[`Tuple se nedá měnit`,`Tuple umí jen čísla`,`Žádný`], a:0, e:`Tuple je pevný, hodí se na souřadnice a dvojice.`},
+],
+py9: [
+  {q:`Co vypíše tenhle kód pro vstup <code>abc</code>?<pre>try:
+    x = int(input())
+    print("A")
+except ValueError:
+    print("B")</pre>`, o:[`A`,`B`,`A i B`], a:1, e:`<code>int("abc")</code> selže, takže <code>print("A")</code> se už nespustí.`},
+  {q:`Co udělá <code>open("x.txt", "w")</code>, když soubor už existuje?`, o:[`Připíše na konec`,`Přepíše ho`,`Skončí chybou`], a:1, e:`Na připisování je režim <code>"a"</code>.`},
+  {q:`Proč psát <code>with open(...) as f:</code>?`, o:[`Soubor se sám zavře`,`Je to rychlejší`,`Jinak nejde číst`], a:0, e:`Po konci bloku <code>with</code> se soubor zavře i při chybě.`},
+  {q:`Co udělá <code>raise ValueError("Špatně")</code>?`, o:[`Vypíše Špatně a pokračuje`,`Vyvolá chybu, kterou může chytit except`,`Nic`], a:1, e:`Text chyby pak dostaneš přes <code>except ValueError as e</code>.`},
+],
+py10: [
+  {q:`Kdy se zavolá <code>__init__</code>?`, o:[`Při vytvoření objektu`,`Při každém print`,`Na konci programu`], a:0, e:`Nastaví počáteční data objektu.`},
+  {q:`Co je <code>self</code>?`, o:[`Název třídy`,`Ten konkrétní objekt, se kterým metoda pracuje`,`Klíčové slovo pro import`], a:1, e:`Přes <code>self.jmeno</code> metoda sahá na data svého objektu.`},
+  {q:`Co zavolá <code>print(objekt)</code>?`, o:[`__init__`,`__str__`,`__print__`], a:1, e:`<code>__str__</code> vrací text, jak má objekt vypadat.`},
+  {q:`Co znamená <code>class Pes(Zvire):</code>?`, o:[`Pes dědí ze Zvire`,`Zvire dědí z Pes`,`Pes obsahuje seznam zvířat`], a:0, e:`Pes dostane všechno ze Zvire a může něco přepsat.`},
+],
+py11: [
+  {q:`Co vrátí <code>[x * 2 for x in [1, 2, 3]]</code>?`, o:[`[2, 4, 6]`,`[1, 2, 3, 1, 2, 3]`,`12`], a:0, e:`Pro každé <code>x</code> vezme <code>x * 2</code>.`},
+  {q:`Jak seřadíš slova podle délky?`, o:[`sorted(slova, key=len)`,`sorted(slova, len)`,`slova.len()`], a:0, e:`Klíč může být libovolná funkce, i vestavěná <code>len</code>.`},
+  {q:`Co dá <code>list(enumerate(["a", "b"], 1))</code>?`, o:[`[(0, 'a'), (1, 'b')]`,`[(1, 'a'), (2, 'b')]`,`['a', 'b']`], a:1, e:`Druhý parametr říká, od kolika se počítá.`},
+  {q:`Jaký je rozdíl mezi <code>import math</code> a <code>from math import sqrt</code>?`, o:[`Žádný`,`U prvního píšeš math.sqrt, u druhého jen sqrt`,`Druhý načte celý modul dvakrát`], a:1, e:`<code>from</code> vezme jen jednu věc přímo do programu.`},
 ],
 };
 COURSE_PY.forEach(w => {
