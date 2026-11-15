@@ -225,6 +225,8 @@ details.acc.lockd>summary{opacity:.55;cursor:not-allowed}
   body.ws .wrap{padding-bottom:70px}
   .dots5{display:none}
 }
+.node.proj{border-style:dashed;border-color:#ffd43b88}
+.ptag{color:var(--acc);border-color:#ffd43b88}
 </style>
 </head>
 <body>
@@ -272,7 +274,8 @@ details.acc.lockd>summary{opacity:.55;cursor:not-allowed}
 'use strict';
 // ---------- state ----------
 const KEY='cppdex-v1';
-const XP_LESSON=10, XP_WORLD=50, XP_PER_LVL=100;
+const XP_LESSON=10, XP_PROJECT=30, XP_WORLD=50, XP_PER_LVL=100;
+const xpOf=l=>l.project?XP_PROJECT:XP_LESSON;
 let S={done:{},code:{},xp:0,days:[],unlockAll:false,hints:{}};
 function load(){try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}}
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
@@ -282,7 +285,7 @@ function save(opts){ver++;saveLocal();schedulePush(opts);}
 // ---------- společný postup na serveru (NAS) ----------
 // Server postup sloučí (hotové lekce se sjednotí), takže se nic neztratí ani při dvou zařízeních.
 let srvProgress=false,pushT=null,lastSync=0,syncErr=false,pendingReset=false;
-function recomputeXp(){S.xp=ALL.filter(x=>S.done[x.l.id]).length*XP_LESSON+COURSE.filter(w=>worldDone(w)).length*XP_WORLD;}
+function recomputeXp(){S.xp=ALL.filter(x=>S.done[x.l.id]).reduce((a,x)=>a+xpOf(x.l),0)+COURSE.filter(w=>worldDone(w)).length*XP_WORLD;}
 function schedulePush(opts){
   if(opts&&opts.reset)pendingReset=true;
   if(!srvProgress)return;
@@ -439,11 +442,11 @@ function viewMap(){
     const d=w.lessons.filter(l=>S.done[l.id]).length;
     const locked=!isUnlocked(w.lessons[0].id);
     h+=`<div class="world${locked?' locked':''}"><div class="wh"><div class="wicon" style="background:${w.color}">${w.icon}</div>
-    <div><h2 class="pix">Svět ${wi+1}: ${esc(w.title)}</h2><div class="sub">${esc(w.desc)}</div></div>
+    <div><h2 class="pix">Svět ${wi+1}: ${esc(w.title)}</h2><div class="sub">${esc(w.desc)}${w.gxx?' <span class="tag only-jscpp">🖥️ jen na serveru s g++</span>':''}</div></div>
     <div class="wprog">${d}/${w.lessons.length}${worldDone(w)?' ✅':''}</div></div><div class="path">`;
     w.lessons.forEach((l,li)=>{
       const un=isUnlocked(l.id),dn=S.done[l.id];
-      h+=`<a class="node${dn?' done':''}${l.id===nx?' cur':''}${un?'':' lock'}" href="#lesson-${l.id}"><span class="dot">${dn?'✓':(un?li+1:'🔒')}</span>${esc(l.title)}${l.type==='quiz'?' <span class="tag">kvíz</span>':''}</a>`;
+      h+=`<a class="node${l.project?' proj':''}${dn?' done':''}${l.id===nx?' cur':''}${un?'':' lock'}" href="#lesson-${l.id}"><span class="dot">${dn?'✓':(un?li+1:'🔒')}</span>${esc(l.title)}${l.type==='quiz'?' <span class="tag">kvíz</span>':''}${l.project?' <span class="tag ptag">projekt</span>':''}</a>`;
     });
     h+=`</div></div>`;
   });
@@ -465,7 +468,7 @@ function viewLesson(id){
   const head=`<div class="lhead"><span>C++ / <b>Svět ${wi+1}: ${esc(w.title)}</b></span><div class="wbar" title="Hotovo ve světě"><i id="wfill" style="width:${pct}%"></i></div><span id="wpct">${pct} %</span>${l.type==='quiz'?'':'<a class="b gh sm" style="margin-left:auto;text-decoration:none" href="#" id="toTask">🎯 Úkol</a>'}</div>`;
   const bot=`<div class="botbar">
     <a class="ib" href="#map" title="Zpět na mapu" aria-label="Zpět na mapu">☰</a>
-    <div class="lt"><b>${esc(l.title)}</b><span>Lekce ${li+1} z ${w.lessons.length}<span class="xpchip">${XP_LESSON} XP</span>${S.done[id]?' · ✓ hotovo':''}</span></div>
+    <div class="lt"><b>${esc(l.title)}</b><span>Lekce ${li+1} z ${w.lessons.length}<span class="xpchip">${xpOf(l)} XP</span>${S.done[id]?' · ✓ hotovo':''}</span></div>
     <div class="dots5" id="dots5" aria-hidden="true">${dots}</div>
     <div class="sp"></div>
     ${prev?`<a class="b gh" style="text-decoration:none" href="#lesson-${prev.l.id}">← Zpět</a>`:''}
@@ -495,7 +498,8 @@ function viewLesson(id){
   app.innerHTML=`<div class="lw"><div class="left">${head}
     <div class="sec"><div class="ltitle">${esc(l.title)}</div></div>
     <div class="sec theory"><h2>📖 Teorie</h2>${l.theory}</div>
-    <div class="sec" id="taskSec"><h2>🎯 Tvůj úkol</h2>
+    ${w.gxx?'<div class="sec only-jscpp"><div class="verdict bad">🖥️ Tahle lekce potřebuje skutečný g++. V samostatném souboru ji nespustíš, otevři Programming Journey na NASu.</div></div>':''}
+    <div class="sec" id="taskSec"><h2>${l.project?'🏁 Projekt':'🎯 Tvůj úkol'}</h2>
       <div class="goal"><div class="what">${l.task}</div>
       <ol class="steps" id="steps">
         <li data-s="1"><span class="n">1</span>Napiš kód do editoru</li>
@@ -562,7 +566,7 @@ function viewLesson(id){
 function complete(id){
   const x=byId(id);const first=!S.done[id];let gain=0,worldBonus=false;
   if(first){
-    S.done[id]=Date.now();gain+=XP_LESSON;
+    S.done[id]=Date.now();gain+=xpOf(x.l);
     if(worldDone(x.w)){gain+=XP_WORLD;worldBonus=true;}
     S.xp+=gain;
   }
