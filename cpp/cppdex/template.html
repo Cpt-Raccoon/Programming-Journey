@@ -109,6 +109,7 @@ textarea.src{flex:1;min-height:260px;resize:vertical;background:transparent;colo
 
 .quiz .opt{display:block;width:100%;text-align:left;background:var(--card2);color:var(--tx);border:2px solid var(--line);padding:12px 14px;margin:8px 0;font-weight:600;border-radius:12px}
 .quiz .opt:hover{border-color:var(--blue)}
+.qdots{display:flex;gap:6px;flex-wrap:wrap}.qdots i{width:14px;height:14px;border-radius:50%;background:var(--line)}.qdots i.d{background:var(--ok)}.qdots i.c{outline:2px solid var(--blue);outline-offset:2px}
 .quiz .opt.right{border-color:var(--ok);background:#0f2a18}
 .quiz .opt.wrong{border-color:var(--bad);background:#2c1015}
 
@@ -319,10 +320,16 @@ const byId=id=>ALL.find(x=>x.l.id===id);
 function isUnlocked(id){
   if(S.unlockAll)return true;
   const i=ALL.findIndex(x=>x.l.id===id);
-  return i===0||!!S.done[ALL[i-1].l.id]||!!S.done[id];
+  if(i===0||S.done[id])return true;
+  // kvíz na konci světa je opakování: neblokuje další lekce
+  let j=i-1;while(j>0&&ALL[j].l.type==='quiz')j--;
+  return !!S.done[ALL[j].l.id];
 }
 function worldDone(w){return w.lessons.every(l=>S.done[l.id]);}
-function nextLesson(){const x=ALL.find(x=>!S.done[x.l.id]);return x?x.l.id:null;}
+function nextLesson(){
+  // přeskočený kvíz nebere pozornost, když už jsi dál
+  const x=ALL.find((x,i)=>!S.done[x.l.id]&&!(x.l.type==='quiz'&&ALL.slice(i+1).some(y=>S.done[y.l.id])));
+  return x?x.l.id:null;}
 
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function streak(){
@@ -480,18 +487,31 @@ function viewLesson(id){
     const ds=document.getElementById('dots5');if(ds)ds.innerHTML=w.lessons.map(q=>`<i class="${S.done[q.id]?'d':''}${q.id===id?' c':''}"></i>`).join('');const b=document.getElementById('bNext');if(!b)return;b.disabled=!(S.done[id]&&next);b.onclick=()=>{if(next&&isUnlocked(next.l.id))location.hash='#lesson-'+next.l.id;};if(!next){b.textContent='Mapa →';b.disabled=!S.done[id];b.onclick=()=>location.hash='#map';}};
 
   if(l.type==='quiz'){
+    const Q=l.questions,qh=t=>t.replace(/<pre>([\s\S]*?)<\/pre>/g,(m,c)=>'<pre>'+esc(c)+'</pre>');
     app.innerHTML=`<div class="lw"><div class="left">${head}
-      <div class="sec"><div class="ltitle">${esc(l.title)}</div><span class="tag">kvíz</span></div>
-      <div class="sec theory"><h2>📖 Co se naučíš</h2>${l.theory}</div></div>
-      <div class="right" style="overflow:auto;background:var(--bg)"><div class="sec quiz"><h2>❓ Otázka</h2><div class="goal"><div class="what">${l.question}</div></div>
-      <p class="small" style="margin:12px 0 0">Vyber jednu odpověď. Když netrefíš, nic se neděje, zkus další.</p>
-      <div id="opts"></div><div class="hint" id="exp"></div></div></div></div>${bot}`;
+      <div class="sec"><div class="ltitle">🧠 ${esc(l.title)}: ${esc(w.title)}</div><span class="tag">kvíz</span></div>
+      <div class="sec theory"><h2>📖 Jak to funguje</h2>${l.theory}</div>
+      <div class="sec"><h2>📍 Kde jsi</h2><div class="qdots" id="qdots"></div></div></div>
+      <div class="right" style="overflow:auto;background:var(--bg)"><div class="sec quiz" id="quiz"></div></div></div>${bot}`;
     wireNext();
-    const o=document.getElementById('opts');
-    l.options.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=esc(t);b.onclick=()=>{
-      if(i===l.answer){b.classList.add('right');const e=document.getElementById('exp');e.innerHTML='✅ '+l.explain;e.classList.add('show');setTimeout(()=>{complete(id);wireNext();},600);}
-      else{b.classList.add('wrong');}
-    };o.appendChild(b);});
+    let qi=0;
+    const dots=()=>{document.getElementById('qdots').innerHTML=Q.map((_,i)=>`<i class="${i<qi||S.done[id]?'d':''}${i===qi&&!S.done[id]?' c':''}"></i>`).join('');};
+    const show=()=>{
+      dots();const x=Q[qi],box=document.getElementById('quiz');
+      box.innerHTML=`<h2>❓ Otázka ${qi+1} z ${Q.length}</h2><div class="goal"><div class="what">${qh(x.q)}</div></div>
+        <p class="small" style="margin:12px 0 0">Vyber jednu odpověď.</p><div id="opts"></div><div class="hint" id="exp"></div><div id="qnext" style="margin-top:12px"></div>`;
+      const o=document.getElementById('opts');let solved=false;
+      x.o.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=esc(t);b.onclick=()=>{
+        if(solved)return;
+        if(i===x.a){solved=true;b.classList.add('right');const e=document.getElementById('exp');e.innerHTML='✅ '+x.e;e.classList.add('show');
+          const last=qi===Q.length-1,nb=document.createElement('button');nb.className='b sub';
+          nb.textContent=last?'✓ Hotovo':'Další otázka →';
+          nb.onclick=()=>{if(last){qi=Q.length;complete(id);wireNext();dots();box.innerHTML=`<h2>🎉 Hotovo</h2><div class="goal"><div class="what">Všechny otázky máš správně. Svět je zopakovaný.</div></div>`;}else{qi++;show();}};
+          document.getElementById('qnext').appendChild(nb);nb.focus();}
+        else b.classList.add('wrong');
+      };o.appendChild(b);});
+    };
+    show();
     return;
   }
   const t0=l.tests[0]||{in:'',out:''};
