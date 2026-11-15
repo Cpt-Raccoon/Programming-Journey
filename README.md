@@ -63,7 +63,11 @@ Kurz běží jen na serveru (skutečný Python 3). Lekce jsou v `cpp/cppdex/less
 2. **Proměnné:** počítání, input, int a float, f-stringy
 3. **Rozhodování:** if, else, elif, and/or, porovnání textů
 4. **Cykly:** for a range, odpočet, while, break/continue, vnořené cykly, 🏁 projekt Hádání čísla
+5. **Seznamy:** indexy, append, split, sum/max/min, řazení a výřezy, filtrování
+6. **Texty:** znaky, pozpátku a palindrom, metody, split a join, in a endswith
+7. **Funkce:** def, return, výchozí parametry, True/False, víc výsledků, rekurze
+8. **Slovníky a množiny:** dict, items a sorted, počítání slov, set, tuple, 🏁 projekt Sklad
 
 ### Dál (návrh)
 
-Seznamy, texty a jejich metody, funkce, slovníky a množiny, chyby a soubory, třídy, moduly a závěrečný projekt. Bonusové lekce podle kódu projektu Quentin, až bude hotový.
+Chyby a soubory, třídy, moduly a závěrečný projekt. Bonusové lekce podle kódu projektu Quentin, až bude hotový.
