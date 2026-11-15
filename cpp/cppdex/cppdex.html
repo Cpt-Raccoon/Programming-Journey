@@ -109,6 +109,7 @@ textarea.src{flex:1;min-height:260px;resize:vertical;background:transparent;colo
 
 .quiz .opt{display:block;width:100%;text-align:left;background:var(--card2);color:var(--tx);border:2px solid var(--line);padding:12px 14px;margin:8px 0;font-weight:600;border-radius:12px}
 .quiz .opt:hover{border-color:var(--blue)}
+.qdots{display:flex;gap:6px;flex-wrap:wrap}.qdots i{width:14px;height:14px;border-radius:50%;background:var(--line)}.qdots i.d{background:var(--ok)}.qdots i.c{outline:2px solid var(--blue);outline-offset:2px}
 .quiz .opt.right{border-color:var(--ok);background:#0f2a18}
 .quiz .opt.wrong{border-color:var(--bad);background:#2c1015}
 
@@ -318,7 +319,7 @@ lodash/lodash.js:
 */
 </script>
 <script>// Obsah kurzu. Každá lekce: id, title, theory (HTML), task (HTML), starter, solution, tests [{in, out}], must [regex], hint
-// type:'quiz' -> question, options, answer (index), explain
+// type:'quiz' -> questions [{q, o, a, e}] (opakovací kvízy jsou dole v REVIEW)
 const H = '#include <iostream>\nusing namespace std;\n\n';
 const HS = '#include <iostream>\n#include <string>\nusing namespace std;\n\n';
 const HV = '#include <iostream>\n#include <vector>\nusing namespace std;\n\n';
@@ -1301,6 +1302,119 @@ Na konci vypiš pole (3 řádky) a pak jedno z: <b>Vyhrál X</b>, <b>Vyhrál O</
   ]
 }
 ];
+// Opakovací kvíz na konci každého světa: jedna otázka naráz.
+// q = otázka (HTML), o = možnosti (text), a = index správné, e = vysvětlení (HTML)
+const REVIEW = {
+w1: [
+  {q:`Co vypíše tenhle řádek?<pre>cout << "Ahoj" << endl << "svete";</pre>`, o:[`Ahoj svete (na jednom řádku)`,`Ahoj, pod tím svete`,`Chybu při překladu`], a:1, e:`<code>endl</code> ukončí řádek, takže <code>svete</code> je o řádek níž.`},
+  {q:`Čím začíná jednořádkový komentář?`, o:[`#`,`--`,`//`], a:2, e:`Všechno za <code>//</code> až do konce řádku překladač ignoruje.`},
+  {q:`Co chybí na konci řádku <code>cout << "Ahoj" << endl</code>?`, o:[`Středník ;`,`Závorka )`,`Nic, je to v pořádku`], a:0, e:`Každý příkaz v C++ končí středníkem.`},
+  {q:`Kde začíná běh programu?`, o:[`Na prvním řádku souboru`,`Ve funkci main`,`U #include`], a:1, e:`Program vždy startuje ve funkci <code>int main()</code>.`},
+],
+w2: [
+  {q:`Kolik je <code>7 / 2</code>, když jsou obě čísla <code>int</code>?`, o:[`3.5`,`4`,`3`], a:2, e:`Dělení dvou celých čísel zahodí desetinnou část.`},
+  {q:`Kolik je <code>17 % 5</code>?`, o:[`2`,`3`,`3.4`], a:0, e:`<code>%</code> je zbytek po dělení: 17 = 3 × 5 + <b>2</b>.`},
+  {q:`Jaký typ použiješ na jeden znak, třeba <code>'A'</code>?`, o:[`bool`,`char`,`double`], a:1, e:`<code>char</code> drží jeden znak v jednoduchých uvozovkách.`},
+  {q:`Co se stane?<pre>const int MAX = 10;\nMAX = 20;</pre>`, o:[`MAX bude 20`,`MAX zůstane 10 a program poběží`,`Chyba při překladu`], a:2, e:`<code>const</code> hodnotu zamkne, změnu překladač nedovolí.`},
+  {q:`Co udělá <code>cin >> vek;</code>?`, o:[`Načte hodnotu z klávesnice do proměnné vek`,`Vypíše vek`,`Smaže vek`], a:0, e:`<code>cin</code> čte vstup, <code>cout</code> vypisuje.`},
+],
+w3: [
+  {q:`Platí podmínka <code>x > 5 && x < 10</code> pro <code>x = 10</code>?`, o:[`Ano`,`Ne`], a:1, e:`<code>10 < 10</code> neplatí, a u <code>&&</code> musí platit obě části.`},
+  {q:`Co vypíše tenhle kód pro <code>x = 3</code>?<pre>if (x > 5) cout << "A";\nelse if (x > 2) cout << "B";\nelse cout << "C";</pre>`, o:[`A`,`C`,`B`], a:2, e:`První podmínka neplatí, druhá ano, takže <b>B</b>. Zbytek se už nekontroluje.`},
+  {q:`Co se stane ve <code>switch</code>, když u <code>case</code> zapomeneš <code>break</code>?`, o:[`Program spadne`,`Pokračuje i do dalšího case`,`Nic, break je nepovinný a nic nemění`], a:1, e:`Bez <code>break</code> program „propadne“ do dalšího <code>case</code>.`},
+  {q:`Jaký je rozdíl mezi <code>x == 5</code> a <code>x = 5</code>?`, o:[`== porovnává, = přiřazuje`,`Žádný`,`= porovnává, == přiřazuje`], a:0, e:`V podmínce skoro vždy chceš <code>==</code>.`},
+],
+w4: [
+  {q:`Co vypíše tenhle kód?<pre>for (int i = 0; i < 3; i++) cout << i;</pre>`, o:[`123`,`012`,`0123`], a:1, e:`Začíná na 0 a skončí, když <code>i</code> dosáhne 3.`},
+  {q:`Co udělá <code>break</code> uvnitř cyklu?`, o:[`Přeskočí jedno kolo`,`Spustí cyklus znovu od začátku`,`Ukončí celý cyklus`], a:2, e:`<code>break</code> z cyklu hned vyskočí.`},
+  {q:`Co udělá <code>continue</code>?`, o:[`Přeskočí zbytek kola a jde na další kolo`,`Ukončí cyklus`,`Ukončí program`], a:0, e:`Na rozdíl od <code>break</code> cyklus pokračuje dál.`},
+  {q:`Kolik hvězdiček se vypíše?<pre>for (int i = 0; i < 3; i++)\n  for (int j = 0; j < 4; j++)\n    cout << "*";</pre>`, o:[`7`,`12`,`4`], a:1, e:`Vnitřní cyklus proběhne 4× pro každé ze 3 kol vnějšího: 3 × 4 = 12.`},
+  {q:`Kolikrát proběhne <code>while (x < 0)</code>, když je na začátku <code>x = 5</code>?`, o:[`Jednou`,`Nekonečněkrát`,`Ani jednou`], a:2, e:`<code>while</code> kontroluje podmínku předem, a ta hned neplatí.`},
+],
+w5: [
+  {q:`Co vrátí <code>f(4)</code>?<pre>int f(int a) { return a * 2; }</pre>`, o:[`8`,`4`,`2`], a:0, e:`Funkce vrátí dvojnásobek parametru.`},
+  {q:`Co znamená <code>void</code> u funkce?`, o:[`Funkce nic nedělá`,`Funkce nevrací žádnou hodnotu`,`Funkce nemá parametry`], a:1, e:`<code>void</code> funkce něco udělá (třeba vypíše), ale nic nevrací.`},
+  {q:`Jakou hodnotu má <code>a</code> na konci?<pre>void zmen(int x) { x = 10; }\nint a = 1;\nzmen(a);</pre>`, o:[`10`,`11`,`1`], a:2, e:`Parametr dostal kopii, takže původní <code>a</code> se nezmění.`},
+  {q:`Co musí mít každá rekurzivní funkce?`, o:[`Aspoň dva parametry`,`Základní případ, kdy se přestane volat`,`Cyklus for`], a:1, e:`Bez základního případu by se volala donekonečna.`},
+],
+w6: [
+  {q:`Jaký je poslední platný index pole <code>int a[5]</code>?`, o:[`5`,`4`,`6`], a:1, e:`Indexy jdou od 0, takže 0 až 4.`},
+  {q:`Kolik je <code>a[1]</code>?<pre>int a[3] = {4, 7, 1};</pre>`, o:[`4`,`1`,`7`], a:2, e:`<code>a[0]</code> je 4, <code>a[1]</code> je 7.`},
+  {q:`Kolik prvků má <code>int m[2][3]</code>?`, o:[`6`,`5`,`23`], a:0, e:`2 řádky × 3 sloupce = 6.`},
+  {q:`Co se stane, když u pole o velikosti 5 přečteš <code>a[5]</code>?`, o:[`Dostaneš 0`,`Čteš mimo pole, výsledek není definovaný`,`Pole se samo zvětší`], a:1, e:`C++ meze nehlídá. Takovou chybu musíš hlídat sám.`},
+],
+w7: [
+  {q:`Co vrátí <code>&x</code>?`, o:[`Hodnotu x`,`Adresu x v paměti`,`x krát 2`], a:1, e:`<code>&</code> před proměnnou dává její adresu.`},
+  {q:`Kolik je na konci <code>x</code>?<pre>int x = 5;\nint* p = &x;\n*p = 8;</pre>`, o:[`8`,`5`,`13`], a:0, e:`<code>*p</code> je to samé místo v paměti jako <code>x</code>.`},
+  {q:`Kam ukazuje <code>p + 1</code>, když je <code>p</code> typu <code>int*</code>?`, o:[`O jeden bajt dál`,`Na stejné místo`,`Na další int v paměti`], a:2, e:`Ukazatelová aritmetika počítá v celých prvcích, ne v bajtech.`},
+  {q:`Proč funkce <code>prohod</code> bere ukazatele?`, o:[`Aby mohla změnit původní proměnné`,`Protože je to rychlejší na psaní`,`Ukazatele jsou povinné u každé funkce`], a:0, e:`Přes adresu funkce zapisuje přímo do původních proměnných.`},
+],
+w8: [
+  {q:`Kolik je <code>s.length()</code> pro <code>string s = "Ahoj";</code>?`, o:[`5`,`4`,`3`], a:1, e:`Ahoj má 4 znaky.`},
+  {q:`Jaký je rozdíl mezi <code>cin >> s</code> a <code>getline(cin, s)</code>?`, o:[`Žádný`,`cin >> s čte celý řádek`,`getline načte celý řádek i s mezerami`], a:2, e:`<code>cin >> s</code> skončí u první mezery.`},
+  {q:`Co vrátí <code>s.find("x")</code>, když tam x není?`, o:[`string::npos`,`0`,`-0`], a:0, e:`Proto se píše <code>if (s.find("x") != string::npos)</code>.`},
+  {q:`Co je <code>s.substr(1, 3)</code> pro <code>s = "Program"</code>?`, o:[`Pro`,`rog`,`rogr`], a:1, e:`Od indexu 1 vezme 3 znaky: r, o, g.`},
+],
+w9: [
+  {q:`Co udělá <code>v.push_back(5)</code>?`, o:[`Přidá 5 na začátek`,`Přepíše první prvek`,`Přidá 5 na konec`], a:2, e:`Vector se sám zvětší o jeden prvek.`},
+  {q:`Jak vypadá <code>v</code> po seřazení?<pre>vector<int> v = {3, 1, 2};\nsort(v.begin(), v.end());</pre>`, o:[`1 2 3`,`3 2 1`,`3 1 2`], a:0, e:`<code>sort</code> řadí vzestupně.`},
+  {q:`Kolik je <code>v.size()</code> po třech <code>push_back</code> do prázdného vectoru?`, o:[`2`,`3`,`4`], a:1, e:`Každý <code>push_back</code> přidá jeden prvek.`},
+  {q:`Co dělá <code>for (int x : v)</code>?`, o:[`Projde jen první prvek`,`Projde indexy 0 až x`,`Projde všechny prvky vectoru`], a:2, e:`Rozsahový for vezme postupně každý prvek.`},
+],
+w10: [
+  {q:`Jak se dostaneš k <code>x</code> u proměnné <code>Bod b</code>?<pre>struct Bod { int x, y; };</pre>`, o:[`b.x`,`b->x`,`Bod.x`], a:0, e:`U proměnné se používá tečka.`},
+  {q:`Jak zapíšeš hodnotu z <code>enum class Barva { Cervena, Zelena };</code>?`, o:[`Zelena`,`Barva::Zelena`,`Barva.Zelena`], a:1, e:`<code>enum class</code> vyžaduje jméno typu a <code>::</code>.`},
+  {q:`K čemu je <code>struct</code>?`, o:[`Ke zrychlení programu`,`K opakování kódu`,`Ke spojení souvisejících dat do jednoho typu`], a:2, e:`Například jméno, věk a druh zvířete v jednom typu.`},
+  {q:`Co je <code>body[0].y</code>?<pre>vector<Bod> body;\nbody.push_back({1, 2});</pre>`, o:[`2`,`1`,`0`], a:0, e:`<code>{1, 2}</code> nastaví x = 1, y = 2.`},
+],
+w11: [
+  {q:`Kolik je na konci <code>a</code>?<pre>void f(int& x) { x++; }\nint a = 1;\nf(a);</pre>`, o:[`1`,`2`,`0`], a:1, e:`<code>int&</code> je reference, takže funkce mění původní <code>a</code>.`},
+  {q:`Proč psát parametr jako <code>const string& s</code>?`, o:[`Aby se text nekopíroval a funkce ho nemohla změnit`,`Aby šel text změnit`,`Je to povinné u stringů`], a:0, e:`Ušetří se kopie a <code>const</code> hlídá, že ho nezměníš.`},
+  {q:`Kolik je na konci <code>a</code>?<pre>int a = 1;\nint& r = a;\nr = 7;</pre>`, o:[`1`,`8`,`7`], a:2, e:`Reference je jen jiné jméno pro stejnou proměnnou.`},
+  {q:`Který cyklus opravdu zdvojnásobí prvky ve vectoru?`, o:[`for (auto x : v) x *= 2;`,`for (auto& x : v) x *= 2;`,`Oba stejně`], a:1, e:`Bez <code>&</code> měníš jen kopii prvku.`},
+],
+w12: [
+  {q:`Kdo může přímo použít <code>private</code> proměnnou třídy?`, o:[`Kdokoliv`,`Jen funkce main`,`Jen metody té třídy`], a:2, e:`Zvenku se k ní dostaneš jen přes veřejné metody.`},
+  {q:`Kdy se zavolá konstruktor?`, o:[`Při vytvoření objektu`,`Při každém volání metody`,`Na konci programu`], a:0, e:`Konstruktor má stejné jméno jako třída a nastaví počáteční hodnoty.`},
+  {q:`Jaký je výchozí přístup u <code>class</code> a u <code>struct</code>?`, o:[`Oba public`,`class private, struct public`,`class public, struct private`], a:1, e:`Jinak se <code>class</code> a <code>struct</code> skoro neliší.`},
+  {q:`Jak zavoláš metodu <code>stekej</code> objektu <code>pes</code>?`, o:[`stekej(pes);`,`pes::stekej();`,`pes.stekej();`], a:2, e:`Objekt, tečka, metoda a závorky.`},
+],
+w13: [
+  {q:`Jak uvolníš paměť z <code>new int[5]</code>?`, o:[`delete[] p;`,`delete p;`,`Nijak, uvolní se sama`], a:0, e:`K <code>new[]</code> patří <code>delete[]</code>.`},
+  {q:`Co je únik paměti (memory leak)?`, o:[`Když program čte mimo pole`,`Paměť z new, kterou nikdo neuvolní`,`Když dojde místo na disku`], a:1, e:`Program si pořád bere paměť a nevrací ji.`},
+  {q:`Proč použít <code>unique_ptr</code>?`, o:[`Je rychlejší než int`,`Umí ukazovat na víc věcí naráz`,`Paměť uvolní sám, když zanikne`], a:2, e:`Nemusíš psát <code>delete</code> a nezapomeneš na něj.`},
+  {q:`Jak nejlépe vytvoříš <code>unique_ptr&lt;int&gt;</code> s hodnotou 5?`, o:[`make_unique<int>(5)`,`new unique_ptr(5)`,`unique_ptr<int> p = 5;`], a:0, e:`<code>make_unique</code> je doporučený způsob.`},
+],
+w14: [
+  {q:`K čemu je <code>ofstream</code>?`, o:[`Ke čtení ze souboru`,`K zápisu do souboru`,`K mazání souboru`], a:1, e:`<b>o</b> = output (výstup), <b>i</b> = input (vstup).`},
+  {q:`Co udělá <code>ofstream f("denik.txt", ios::app);</code>?`, o:[`Soubor smaže`,`Soubor přepíše`,`Bude připisovat na konec souboru`], a:2, e:`Bez <code>ios::app</code> by se starý obsah přepsal.`},
+  {q:`Jak dlouho běží <code>while (f >> x)</code>?`, o:[`Dokud se daří načíst další hodnotu`,`Přesně 10×`,`Navždy`], a:0, e:`Na konci souboru čtení selže a cyklus skončí.`},
+  {q:`Jak poznáš, že <code>ifstream f("x.txt")</code> soubor neotevřel?`, o:[`Program spadne`,`if (!f)`,`f.size() == 0`], a:1, e:`Stream v chybovém stavu se chová jako <code>false</code>.`},
+],
+w15: [
+  {q:`Co znamená <code>class Pes : public Zvire</code>?`, o:[`Zvire dědí z Pes`,`Pes a Zvire jsou totéž`,`Pes dědí ze Zvire`], a:2, e:`Pes dostane všechno veřejné, co má Zvire, a může přidat své.`},
+  {q:`K čemu je <code>virtual</code> u metody?`, o:[`Aby se přes ukazatel na rodiče zavolala metoda potomka`,`Aby byla metoda rychlejší`,`Aby šla zavolat bez objektu`], a:0, e:`Tomu se říká polymorfismus.`},
+  {q:`Co hlídá <code>override</code>?`, o:[`Že metoda je private`,`Že opravdu přepisuješ virtuální metodu rodiče`,`Že metoda nic nevrací`], a:1, e:`Když se spleteš v názvu nebo parametrech, překladač to ohlásí.`},
+  {q:`Proč má mít rodič <code>virtual</code> destruktor?`, o:[`Aby se objekt nedal smazat`,`Je to jen zvyk, nic to nemění`,`Aby se při mazání přes ukazatel na rodiče zavolal i destruktor potomka`], a:2, e:`Jinak by část objektu nemusela uklidit.`},
+],
+w16: [
+  {q:`Kolik je <code>m["pes"]</code>?<pre>map<string, int> m;\nm["pes"]++;</pre>`, o:[`1`,`0`,`Chyba, klíč neexistuje`], a:0, e:`Chybějící klíč se vytvoří s hodnotou 0 a pak se zvýší na 1.`},
+  {q:`Co platí pro <code>set</code>?`, o:[`Pamatuje si pořadí vkládání`,`Každá hodnota je tam jen jednou a je seřazená`,`Může mít stejnou hodnotu víckrát`], a:1, e:`Hodí se třeba na seznam unikátních slov.`},
+  {q:`Jak tenhle kód seřadí čísla?<pre>sort(v.begin(), v.end(),\n  [](int a, int b) { return a > b; });</pre>`, o:[`Vzestupně`,`Vůbec`,`Sestupně`], a:2, e:`Lambda říká, že <code>a</code> má být před <code>b</code>, když je větší.`},
+  {q:`V jakém pořadí projde <code>for (auto& [k, v] : m)</code> mapu?`, o:[`Podle klíčů seřazeně`,`Náhodně`,`V pořadí vkládání`], a:0, e:`<code>map</code> drží klíče seřazené.`},
+],
+w17: [
+  {q:`Co udělá <code>stoi("abc")</code>?`, o:[`Vrátí 0`,`Vyhodí výjimku`,`Vrátí -1`], a:1, e:`<code>invalid_argument</code> chytíš přes <code>try</code> a <code>catch</code>.`},
+  {q:`Chytí <code>catch (const exception& e)</code> výjimku <code>runtime_error</code>?`, o:[`Ne`,`Jen v main`,`Ano, runtime_error dědí z exception`], a:2, e:`Chytání přes rodiče funguje díky dědičnosti.`},
+  {q:`Co vrátí <code>e.what()</code>?`, o:[`Text chyby`,`Číslo řádku`,`Typ výjimky jako číslo`], a:0, e:`Je to zpráva, kterou jsi předal při <code>throw</code>.`},
+  {q:`K čemu je <code>template&lt;typename T&gt;</code>?`, o:[`Ke zrychlení programu`,`Aby jedna funkce fungovala pro různé typy`,`K vytvoření třídy`], a:1, e:`Třeba <code>nejvetsi</code> pak funguje pro int, double i string.`},
+],
+};
+COURSE.forEach(w => {
+  const q = REVIEW[w.id];
+  if (q) w.lessons.push({id: w.id + 'q', type: 'quiz', title: 'Opakování', questions: q,
+    theory: `<p>Pár rychlých otázek z tohoto světa. Vidíš vždy jen jednu.</p><p>Když netrefíš, nic se neděje, zkus jinou možnost. Po správné odpovědi uvidíš krátké vysvětlení.</p>`});
+});
 if (typeof module !== 'undefined') module.exports = COURSE;
 </script>
 <script>
@@ -1353,10 +1467,16 @@ const byId=id=>ALL.find(x=>x.l.id===id);
 function isUnlocked(id){
   if(S.unlockAll)return true;
   const i=ALL.findIndex(x=>x.l.id===id);
-  return i===0||!!S.done[ALL[i-1].l.id]||!!S.done[id];
+  if(i===0||S.done[id])return true;
+  // kvíz na konci světa je opakování: neblokuje další lekce
+  let j=i-1;while(j>0&&ALL[j].l.type==='quiz')j--;
+  return !!S.done[ALL[j].l.id];
 }
 function worldDone(w){return w.lessons.every(l=>S.done[l.id]);}
-function nextLesson(){const x=ALL.find(x=>!S.done[x.l.id]);return x?x.l.id:null;}
+function nextLesson(){
+  // přeskočený kvíz nebere pozornost, když už jsi dál
+  const x=ALL.find((x,i)=>!S.done[x.l.id]&&!(x.l.type==='quiz'&&ALL.slice(i+1).some(y=>S.done[y.l.id])));
+  return x?x.l.id:null;}
 
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function streak(){
@@ -1514,18 +1634,31 @@ function viewLesson(id){
     const ds=document.getElementById('dots5');if(ds)ds.innerHTML=w.lessons.map(q=>`<i class="${S.done[q.id]?'d':''}${q.id===id?' c':''}"></i>`).join('');const b=document.getElementById('bNext');if(!b)return;b.disabled=!(S.done[id]&&next);b.onclick=()=>{if(next&&isUnlocked(next.l.id))location.hash='#lesson-'+next.l.id;};if(!next){b.textContent='Mapa →';b.disabled=!S.done[id];b.onclick=()=>location.hash='#map';}};
 
   if(l.type==='quiz'){
+    const Q=l.questions,qh=t=>t.replace(/<pre>([\s\S]*?)<\/pre>/g,(m,c)=>'<pre>'+esc(c)+'</pre>');
     app.innerHTML=`<div class="lw"><div class="left">${head}
-      <div class="sec"><div class="ltitle">${esc(l.title)}</div><span class="tag">kvíz</span></div>
-      <div class="sec theory"><h2>📖 Co se naučíš</h2>${l.theory}</div></div>
-      <div class="right" style="overflow:auto;background:var(--bg)"><div class="sec quiz"><h2>❓ Otázka</h2><div class="goal"><div class="what">${l.question}</div></div>
-      <p class="small" style="margin:12px 0 0">Vyber jednu odpověď. Když netrefíš, nic se neděje, zkus další.</p>
-      <div id="opts"></div><div class="hint" id="exp"></div></div></div></div>${bot}`;
+      <div class="sec"><div class="ltitle">🧠 ${esc(l.title)}: ${esc(w.title)}</div><span class="tag">kvíz</span></div>
+      <div class="sec theory"><h2>📖 Jak to funguje</h2>${l.theory}</div>
+      <div class="sec"><h2>📍 Kde jsi</h2><div class="qdots" id="qdots"></div></div></div>
+      <div class="right" style="overflow:auto;background:var(--bg)"><div class="sec quiz" id="quiz"></div></div></div>${bot}`;
     wireNext();
-    const o=document.getElementById('opts');
-    l.options.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=esc(t);b.onclick=()=>{
-      if(i===l.answer){b.classList.add('right');const e=document.getElementById('exp');e.innerHTML='✅ '+l.explain;e.classList.add('show');setTimeout(()=>{complete(id);wireNext();},600);}
-      else{b.classList.add('wrong');}
-    };o.appendChild(b);});
+    let qi=0;
+    const dots=()=>{document.getElementById('qdots').innerHTML=Q.map((_,i)=>`<i class="${i<qi||S.done[id]?'d':''}${i===qi&&!S.done[id]?' c':''}"></i>`).join('');};
+    const show=()=>{
+      dots();const x=Q[qi],box=document.getElementById('quiz');
+      box.innerHTML=`<h2>❓ Otázka ${qi+1} z ${Q.length}</h2><div class="goal"><div class="what">${qh(x.q)}</div></div>
+        <p class="small" style="margin:12px 0 0">Vyber jednu odpověď.</p><div id="opts"></div><div class="hint" id="exp"></div><div id="qnext" style="margin-top:12px"></div>`;
+      const o=document.getElementById('opts');let solved=false;
+      x.o.forEach((t,i)=>{const b=document.createElement('button');b.className='opt';b.innerHTML=esc(t);b.onclick=()=>{
+        if(solved)return;
+        if(i===x.a){solved=true;b.classList.add('right');const e=document.getElementById('exp');e.innerHTML='✅ '+x.e;e.classList.add('show');
+          const last=qi===Q.length-1,nb=document.createElement('button');nb.className='b sub';
+          nb.textContent=last?'✓ Hotovo':'Další otázka →';
+          nb.onclick=()=>{if(last){qi=Q.length;complete(id);wireNext();dots();box.innerHTML=`<h2>🎉 Hotovo</h2><div class="goal"><div class="what">Všechny otázky máš správně. Svět je zopakovaný.</div></div>`;}else{qi++;show();}};
+          document.getElementById('qnext').appendChild(nb);nb.focus();}
+        else b.classList.add('wrong');
+      };o.appendChild(b);});
+    };
+    show();
     return;
   }
   const t0=l.tests[0]||{in:'',out:''};

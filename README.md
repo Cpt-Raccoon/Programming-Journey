@@ -36,9 +36,10 @@ Světy 1 až 7 běží i v samostatném souboru (JSCPP v prohlížeči). Světy 
 16. **STL:** map (počítání slov), set, sort s lambdou
 17. **Výjimky, šablony a finále:** try/catch, throw, šablona funkce, 🏁 projekt Piškvorky
 
+Každý svět končí krátkým opakovacím kvízem (jedna otázka naráz). Kvíz neblokuje další lekce.
+
 ### Dál (návrh)
 
-- Opakovací kvíz na konci každého světa
 - Pak kurzy Python, Git a GitHub, GenAI, Machine Learning, UI/UX
 
 Zdroje: osnova kurzu C++ na Codédexu a kniha *Mistrovství v C++* (Stephen Prata).
