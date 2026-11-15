@@ -16,7 +16,7 @@ RUN cd /build/cppdex && python3 build.py \
 
 COPY app/server.py /app/server.py
 
-ENV PORT=8080 STATIC_DIR=/app/static RUN_UID=10001 PYTHONUNBUFFERED=1
+ENV PORT=8080 STATIC_DIR=/app/static DATA_DIR=/data RUN_UID=10001 PYTHONUNBUFFERED=1
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s CMD python3 -c "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/api/health')"
 CMD ["python3", "/app/server.py"]

@@ -248,6 +248,7 @@ details.acc.lockd>summary{opacity:.55;cursor:not-allowed}
   <div class="pop-r"><span>Velikost písma</span><span class="row"><button class="b gh sm" id="fsMinus" aria-label="Menší písmo">A−</button><button class="b gh sm" id="fsPlus" aria-label="Větší písmo">A+</button></span></div>
   <label class="switch"><input type="checkbox" id="calm"> Klidný režim (bez animací, konfet a barevného pozadí)</label>
   <label class="switch"><input type="checkbox" id="noGame"> Skrýt XP a sérii dní</label>
+  <div class="small" id="syncSt"></div>
 </div>
 <main class="wrap" id="app"></main>
 
@@ -773,7 +774,40 @@ const KEY='cppdex-v1';
 const XP_LESSON=10, XP_WORLD=50, XP_PER_LVL=100;
 let S={done:{},code:{},xp:0,days:[],unlockAll:false,hints:{}};
 function load(){try{const r=localStorage.getItem(KEY);if(r)S=Object.assign(S,JSON.parse(r));}catch(e){}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let ver=0;
+function save(opts){ver++;saveLocal();schedulePush(opts);}
+
+// ---------- společný postup na serveru (NAS) ----------
+// Server postup sloučí (hotové lekce se sjednotí), takže se nic neztratí ani při dvou zařízeních.
+let srvProgress=false,pushT=null,lastSync=0,syncErr=false,pendingReset=false;
+function recomputeXp(){S.xp=ALL.filter(x=>S.done[x.l.id]).length*XP_LESSON+COURSE.filter(w=>worldDone(w)).length*XP_WORLD;}
+function schedulePush(opts){
+  if(opts&&opts.reset)pendingReset=true;
+  if(!srvProgress)return;
+  clearTimeout(pushT);pushT=setTimeout(()=>pushProgress(),opts&&opts.now?0:800);
+}
+async function pushProgress(keepalive){
+  if(!srvProgress)return false;
+  const reset=pendingReset;pendingReset=false;const sent=ver;
+  try{
+    const r=await fetch('api/progress',{method:'PUT',keepalive:!!keepalive,headers:Object.assign({'Content-Type':'application/json'},reset?{'X-Reset':'1'}:{}),body:JSON.stringify(S)});
+    if(!r.ok)throw new Error(r.status);
+    const m=await r.json();
+    if(ver!==sent){
+      // Během ukládání jsi dál psal: vezmi ze serveru jen postup, rozepsaný kód nech být a pošli ho znovu.
+      S.done=m.done||S.done;S.days=m.days||S.days;S.hints=m.hints||S.hints;schedulePush();
+    }else{const ui=S.ui;S=Object.assign({done:{},code:{},codeTs:{},xp:0,days:[],hints:{}},m);S.ui=ui||m.ui;}
+    recomputeXp();saveLocal();hud();lastSync=Date.now();syncErr=false;syncLabel();
+    return true;
+  }catch(e){if(reset)pendingReset=true;if(!syncErr)toast('⚠️ Postup se nepodařilo uložit na server, zkusím to znovu.');syncErr=true;syncLabel();return false;}
+}
+function syncLabel(){
+  const el=document.getElementById('syncSt');if(!el)return;
+  if(!srvProgress){el.textContent='💾 Postup je uložený jen v tomhle prohlížeči.';return;}
+  if(syncErr){el.textContent='⚠️ Server teď nedostupný, postup je zatím jen tady.';return;}
+  el.textContent=lastSync?'☁️ Postup je uložený na NASu ('+new Date(lastSync).toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})+').':'☁️ Načítám postup z NASu…';
+}
 load();
 
 const ALL=[];COURSE.forEach((w,wi)=>w.lessons.forEach((l,li)=>ALL.push({w,l,wi,li})));
@@ -816,7 +850,7 @@ let serverMode=null;
 async function hasServer(){
   if(serverMode!==null)return serverMode;
   if(location.protocol==='file:'){serverMode=false;return false;}
-  try{const r=await fetch('api/health',{cache:'no-store'});serverMode=r.ok&&(await r.json()).ok===true;}catch(e){serverMode=false;}
+  try{const r=await fetch('api/health',{cache:'no-store'});const d=r.ok?await r.json():{};serverMode=d.ok===true;srvProgress=d.progress===true;}catch(e){serverMode=false;}
   return serverMode;
 }
 async function runCpp(code,input){
@@ -984,7 +1018,7 @@ function viewLesson(id){
   wireNext();
   document.getElementById('toTask').onclick=e=>{e.preventDefault();document.getElementById('taskSec').scrollIntoView({behavior:'smooth',block:'start'});};
   const host=document.getElementById('edhost');
-  const ed=editor(host,S.code[id]!=null?S.code[id]:l.starter,v=>{S.code[id]=v;save();if(st<2&&v!==l.starter)setStep(2);});
+  const ed=editor(host,S.code[id]!=null?S.code[id]:l.starter,v=>{S.code[id]=v;(S.codeTs||(S.codeTs={}))[id]=Date.now();save();if(st<2&&v!==l.starter)setStep(2);});
   const out=document.getElementById('out');
   const bRun=document.getElementById('bRun'),bSub=document.getElementById('bSub');
   const dHint=document.getElementById('dHint'),dSol=document.getElementById('dSol');
@@ -1084,7 +1118,7 @@ function viewProfile(){
   <div class="card"><h2 class="pix">Nastavení</h2>
    <label class="switch"><input type="checkbox" id="ua" ${S.unlockAll?'checked':''}> Odemknout všechny lekce (volný režim)</label></div>
   <div class="card"><h2 class="pix">Záloha postupu</h2>
-   <p class="small">Postup se ukládá jen v tomhle prohlížeči. Pro přenos na jiné zařízení zkopíruj kód zálohy a vlož ho tam.</p>
+   <p class="small">${srvProgress?'Postup se ukládá na NAS a je stejný na všech zařízeních. Kód zálohy se hodí jako záloha navíc.':'Postup se ukládá jen v tomhle prohlížeči. Pro přenos na jiné zařízení zkopíruj kód zálohy a vlož ho tam.'}</p>
    <textarea class="bk" id="bk" readonly></textarea>
    <div class="row" style="margin-top:8px"><button class="b gh" id="cp">📋 Kopírovat</button></div>
    <p class="small" style="margin-top:14px">Obnovit ze zálohy:</p>
@@ -1095,8 +1129,8 @@ function viewProfile(){
   document.getElementById('bk').value=code;
   document.getElementById('ua').onchange=e=>{S.unlockAll=e.target.checked;save();};
   document.getElementById('cp').onclick=()=>{navigator.clipboard.writeText(code).then(()=>toast('Zkopírováno ✓'),()=>{document.getElementById('bk').select();toast('Označeno – zkopíruj ručně');});};
-  document.getElementById('im').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob(document.getElementById('imp').value.trim()))));if(!o.done)throw 0;S=Object.assign({done:{},code:{},xp:0,days:[]},o);save();hud();toast('Postup obnoven ✓');viewProfile();}catch(e){toast('Neplatný kód zálohy');}};
-  let armed=false;document.getElementById('rs').onclick=e=>{if(!armed){armed=true;e.target.textContent='Opravdu? Klikni znovu';return;}S={done:{},code:{},xp:0,days:[],unlockAll:false,hints:{},ui:S.ui};save();hud();toast('Postup smazán');viewProfile();};
+  document.getElementById('im').onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob(document.getElementById('imp').value.trim()))));if(!o.done)throw 0;S=Object.assign({done:{},code:{},xp:0,days:[]},o);save({reset:true,now:true});hud();toast('Postup obnoven ✓');viewProfile();}catch(e){toast('Neplatný kód zálohy');}};
+  let armed=false;document.getElementById('rs').onclick=e=>{if(!armed){armed=true;e.target.textContent='Opravdu? Klikni znovu';return;}S={done:{},code:{},codeTs:{},xp:0,days:[],unlockAll:false,hints:{},ui:S.ui};save({reset:true,now:true});hud();toast('Postup smazán');viewProfile();};
 }
 
 // ---------- misc ----------
@@ -1133,7 +1167,21 @@ document.getElementById('noGame').onchange=e=>{S.ui.noGame=e.target.checked;save
 applyUi();
 addEventListener('hashchange',route);
 hud();route();
-hasServer().then(ok=>{if(ok)document.body.classList.add('srv');});
+hasServer().then(async ok=>{
+  if(ok)document.body.classList.add('srv');
+  syncLabel();
+  if(srvProgress){
+    const before=JSON.stringify([S.done,S.unlockAll]);
+    if(await pushProgress()&&JSON.stringify([S.done,S.unlockAll])!==before)route();
+  }
+});
+// Při návratu do aplikace (např. z iPadu na PC) si stáhni postup z ostatních zařízení.
+document.addEventListener('visibilitychange',async()=>{
+  if(!srvProgress)return;
+  if(document.visibilityState==='hidden'){clearTimeout(pushT);pushProgress(true);return;}
+  const before=JSON.stringify(S.done);
+  if(await pushProgress()&&JSON.stringify(S.done)!==before&&!location.hash.startsWith('#lesson-'))route();
+});
 })();
 </script>
 </body>

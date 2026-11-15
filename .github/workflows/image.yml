@@ -25,12 +25,16 @@ jobs:
       - name: Test lekcí proti skutečnému g++
         run: |
           docker run -d --init --name pj -p 8080:8080 \
-            --read-only --tmpfs /tmp:exec,size=256m \
+            --read-only --tmpfs /tmp:exec,size=256m --tmpfs /data \
             --cap-drop ALL --cap-add CHOWN --cap-add SETUID --cap-add SETGID \
             --cap-add DAC_OVERRIDE --cap-add FOWNER --cap-add KILL \
             --security-opt no-new-privileges:true pj:ci
           for i in $(seq 1 20); do curl -fs localhost:8080/api/health && break; sleep 1; done
           node cpp/cppdex/check-server.js http://localhost:8080
+          # ukládání postupu: dvě zařízení se musí sloučit
+          curl -fs -X PUT localhost:8080/api/progress -d '{"done":{"w1l1":1},"xp":10}' >/dev/null
+          curl -fs -X PUT localhost:8080/api/progress -d '{"done":{"w1l2":2},"xp":10}' >/dev/null
+          curl -fs localhost:8080/api/progress | python3 -c "import json,sys;d=json.load(sys.stdin);assert sorted(d['done'])==['w1l1','w1l2'],d;print('progress ok')"
 
       - name: Push do GHCR
         if: github.event_name != 'pull_request'

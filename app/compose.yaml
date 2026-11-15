@@ -10,6 +10,8 @@ services:
     read_only: true
     tmpfs:
       - /tmp:exec,size=256m
+    volumes:
+      - journey-data:/data   # tvůj postup (XP, hotové lekce, kód)
     cap_drop: [ALL]
     cap_add: [CHOWN, SETUID, SETGID, DAC_OVERRIDE, FOWNER, KILL]
     security_opt:
@@ -17,3 +19,6 @@ services:
     pids_limit: 256
     mem_limit: 1g
     cpus: 2
+
+volumes:
+  journey-data:
