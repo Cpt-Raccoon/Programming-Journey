@@ -1,6 +1,6 @@
 # Programming Journey
 
-Moje cesta programováním. Začínám s C++, později přibudou další jazyky.
+Moje cesta programováním. Kurzy C++ a Python, později přibudou další.
 
 ## Struktura
 
@@ -40,7 +40,7 @@ Každý svět končí krátkým opakovacím kvízem (jedna otázka naráz). Kví
 
 ### Dál (návrh)
 
-- Pak kurzy Python, Git a GitHub, GenAI, Machine Learning, UI/UX
+- Pak kurzy Git a GitHub, GenAI, Machine Learning, UI/UX
 
 Zdroje: osnova kurzu C++ na Codédexu a kniha *Mistrovství v C++* (Stephen Prata).
 
@@ -52,3 +52,18 @@ python3 build.py   # sestaví cppdex.html
 node check.js      # ověří řešení světů 1–7 v JSCPP
 node check-server.js http://localhost:8080   # ověří všechna řešení proti g++ na serveru
 ```
+
+## Osnova Python
+
+Kurz běží jen na serveru (skutečný Python 3). Lekce jsou v `cpp/cppdex/lessons-py.js`.
+
+### Hotovo
+
+1. **První kroky:** print, sep a end, komentáře, oprava chyb
+2. **Proměnné:** počítání, input, int a float, f-stringy
+3. **Rozhodování:** if, else, elif, and/or, porovnání textů
+4. **Cykly:** for a range, odpočet, while, break/continue, vnořené cykly, 🏁 projekt Hádání čísla
+
+### Dál (návrh)
+
+Seznamy, texty a jejich metody, funkce, slovníky a množiny, chyby a soubory, třídy, moduly a závěrečný projekt. Bonusové lekce podle kódu projektu Quentin, až bude hotový.
