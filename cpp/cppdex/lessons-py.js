@@ -318,6 +318,357 @@ while x != 0:
     hint:'while True: načti tip, zvyš pokusy, porovnej. Při trefě vypiš zprávu a break.'},
   ]
 },
+{
+  id:'py5', title:'Seznamy', icon:'📋', color:'#e599f7',
+  desc:'list: indexy, append, procházení, sum/max/min, řazení.',
+  lessons:[
+  { id:'py5l1', title:'Seznam',
+    theory:`<p>Seznam (<code>list</code>) drží víc hodnot za sebou. Píše se do hranatých závorek:</p>
+<pre>zvirata = ["pes", "kočka", "myš"]
+print(zvirata[0])    # pes  (indexy od 0)
+print(zvirata[-1])   # myš  (záporný index počítá od konce)
+print(len(zvirata))  # 3</pre>`,
+    task:`Máš seznam <code>ovoce</code>. Vypiš pod sebe první prvek, poslední prvek (přes index <code>-1</code>) a počet prvků.`,
+    starter:`ovoce = ["jablko", "hruška", "švestka", "meruňka"]\n`,
+    solution:`ovoce = ["jablko", "hruška", "švestka", "meruňka"]\nprint(ovoce[0])\nprint(ovoce[-1])\nprint(len(ovoce))\n`,
+    tests:[{in:'',out:'jablko\nmeruňka\n4'}],
+    must:['\\[-1\\]','len\\('],
+    hint:'ovoce[0], ovoce[-1] a len(ovoce).'},
+  { id:'py5l2', title:'append',
+    theory:`<p>Prázdný seznam je <code>[]</code>. Metoda <code>append</code> přidá prvek na konec:</p>
+<pre>nakup = []
+nakup.append("chleba")
+nakup.append("mléko")
+print(nakup)   # ['chleba', 'mléko']</pre>`,
+    task:`Na prvním řádku vstupu je počet slov <code>n</code>, pak <code>n</code> slov (každé na řádku). Ulož je do seznamu přes <code>append</code> a seznam vypiš.`,
+    starter:`n = int(input())\nslova = []\n\nprint(slova)\n`,
+    stdin:'3\npes\nkočka\nmyš',
+    solution:`n = int(input())\nslova = []\nfor i in range(n):\n    slova.append(input())\nprint(slova)\n`,
+    tests:[{in:'3\npes\nkočka\nmyš',out:"['pes', 'kočka', 'myš']"},{in:'1\nahoj',out:"['ahoj']"},{in:'0',out:'[]'}],
+    must:['append'],
+    hint:'for i in range(n): slova.append(input())'},
+  { id:'py5l3', title:'Procházení a split',
+    theory:`<p><code>for</code> umí projít seznam prvek po prvku:</p>
+<pre>for zvire in zvirata:
+    print(zvire)</pre>
+<p>Metoda <code>split()</code> rozseká text podle mezer na seznam:</p>
+<pre>"1 2 3".split()   # ['1', '2', '3']  (pořád texty!)</pre>`,
+    task:`Na vstupu je řádek čísel oddělených mezerou. Vypiš pod sebe každé číslo dvakrát větší.`,
+    starter:`casti = input().split()\n`,
+    stdin:'1 2 3',
+    solution:`casti = input().split()\nfor x in casti:\n    print(int(x) * 2)\n`,
+    tests:[{in:'1 2 3',out:'2\n4\n6'},{in:'10 -5',out:'20\n-10'}],
+    must:['split\\(','for '],
+    hint:'for x in casti: print(int(x) * 2). Nezapomeň převést text na číslo.'},
+  { id:'py5l4', title:'sum, max, min',
+    theory:`<p>Na seznamy čísel jsou hotové funkce:</p>
+<pre>cisla = [3, 9, 1]
+sum(cisla)   # 13
+max(cisla)   # 9
+min(cisla)   # 1</pre>
+<p>Seznam čísel ze vstupu postavíš takhle:</p>
+<pre>cisla = []
+for x in input().split():
+    cisla.append(int(x))</pre>`,
+    task:`Načti řádek čísel a vypiš:<pre>Součet: 20
+Maximum: 9
+Minimum: 1
+Průměr: 5.0</pre>Průměr zaokrouhli na 1 desetinné místo.`,
+    starter:`cisla = []\nfor x in input().split():\n    cisla.append(int(x))\n`,
+    stdin:'3 9 1 7',
+    solution:`cisla = []\nfor x in input().split():\n    cisla.append(int(x))\nprint(f"Součet: {sum(cisla)}")\nprint(f"Maximum: {max(cisla)}")\nprint(f"Minimum: {min(cisla)}")\nprint(f"Průměr: {sum(cisla) / len(cisla):.1f}")\n`,
+    tests:[{in:'3 9 1 7',out:'Součet: 20\nMaximum: 9\nMinimum: 1\nPrůměr: 5.0'},{in:'5',out:'Součet: 5\nMaximum: 5\nMinimum: 5\nPrůměr: 5.0'},{in:'1 2',out:'Součet: 3\nMaximum: 2\nMinimum: 1\nPrůměr: 1.5'}],
+    must:['sum\\(','max\\(','min\\('],
+    hint:'Průměr je sum(cisla) / len(cisla), ve f-stringu s :.1f.'},
+  { id:'py5l5', title:'Řazení a výřezy',
+    theory:`<p><code>sort()</code> seřadí seznam, s <code>reverse=True</code> sestupně:</p>
+<pre>c = [5, 1, 9]
+c.sort(reverse=True)   # [9, 5, 1]</pre>
+<p><b>Výřez</b> vezme kus seznamu: <code>c[:2]</code> jsou první dva prvky. <code>print(*c)</code> vypíše prvky oddělené mezerou bez závorek.</p>`,
+    task:`Načti řádek čísel a vypiš 3 největší, sestupně, na jednom řádku oddělené mezerou.`,
+    starter:`cisla = []\nfor x in input().split():\n    cisla.append(int(x))\n`,
+    stdin:'5 1 9 3 7',
+    solution:`cisla = []\nfor x in input().split():\n    cisla.append(int(x))\ncisla.sort(reverse=True)\nprint(*cisla[:3])\n`,
+    tests:[{in:'5 1 9 3 7',out:'9 7 5'},{in:'4 4 2 8',out:'8 4 4'},{in:'1 2 3',out:'3 2 1'}],
+    must:['sort'],
+    hint:'cisla.sort(reverse=True), pak print(*cisla[:3]).'},
+  { id:'py5l6', title:'Filtrování',
+    theory:`<p>Nový seznam jen s některými prvky postavíš cyklem a podmínkou:</p>
+<pre>velka = []
+for x in cisla:
+    if x > 10:
+        velka.append(x)</pre>
+<p>Prázdný seznam se v podmínce chová jako <code>False</code>: <code>if velka:</code> znamená „když něco obsahuje“.</p>`,
+    task:`Načti řádek čísel a vypiš jen sudá (mezerou, v původním pořadí). Když žádné není, vypiš <b>Žádná</b>.`,
+    starter:`cisla = []\nfor x in input().split():\n    cisla.append(int(x))\n`,
+    stdin:'1 2 3 4',
+    solution:`cisla = []\nfor x in input().split():\n    cisla.append(int(x))\nsuda = []\nfor x in cisla:\n    if x % 2 == 0:\n        suda.append(x)\nif suda:\n    print(*suda)\nelse:\n    print("Žádná")\n`,
+    tests:[{in:'1 2 3 4',out:'2 4'},{in:'1 3',out:'Žádná'},{in:'8 6 7',out:'8 6'}],
+    must:['append'],
+    hint:'Projdi cisla, sudá přidej do nového seznamu. Pak if suda: print(*suda) else: print("Žádná").'},
+  ]
+},
+{
+  id:'py6', title:'Texty', icon:'🔤', color:'#ff922b',
+  desc:'Indexy, výřezy, metody textů, split a join.',
+  lessons:[
+  { id:'py6l1', title:'Znaky v textu',
+    theory:`<p>Text se chová podobně jako seznam znaků:</p>
+<pre>s = "Python"
+s[0]      # 'P'
+s[-1]     # 'n'
+len(s)    # 6</pre>`,
+    task:`Načti slovo a vypiš pod sebe jeho první znak, poslední znak a délku.`,
+    starter:`s = input()\n`,
+    stdin:'Python',
+    solution:`s = input()\nprint(s[0])\nprint(s[-1])\nprint(len(s))\n`,
+    tests:[{in:'Python',out:'P\nn\n6'},{in:'ahoj',out:'a\nj\n4'}],
+    must:['len\\('],
+    hint:'s[0], s[-1], len(s).'},
+  { id:'py6l2', title:'Pozpátku a palindrom',
+    theory:`<p>Výřez <code>[od:do:krok]</code> funguje i na text. Krok <code>-1</code> jde pozpátku:</p>
+<pre>s = "Python"
+s[1:4]    # 'yth'
+s[::-1]   # 'nohtyP'</pre>
+<p>Palindrom se čte stejně z obou stran, třeba „kajak“.</p>`,
+    task:`Načti slovo. Vypiš ho pozpátku. Na další řádek vypiš <b>Palindrom</b> nebo <b>Není palindrom</b> (velikost písmen nerozhoduje).`,
+    starter:`s = input()\n`,
+    stdin:'Kajak',
+    solution:`s = input()\nprint(s[::-1])\nif s.lower() == s.lower()[::-1]:\n    print("Palindrom")\nelse:\n    print("Není palindrom")\n`,
+    tests:[{in:'Kajak',out:'kajaK\nPalindrom'},{in:'Python',out:'nohtyP\nNení palindrom'},{in:'a',out:'a\nPalindrom'}],
+    must:['\\[::-1\\]'],
+    hint:'Porovnej s.lower() s s.lower()[::-1].'},
+  { id:'py6l3', title:'Metody textů',
+    theory:`<p>Text má spoustu metod. Nic nemění, vždy vrátí nový text:</p>
+<pre>s = "ahoj svete"
+s.upper()             # 'AHOJ SVETE'
+s.replace(" ", "_")   # 'ahoj_svete'
+s.count("e")          # 2
+"  x  ".strip()       # 'x'</pre>`,
+    task:`Načti větu. Vypiš ji velkými písmeny, pak s mezerami nahrazenými podtržítkem a nakonec počet písmen <b>a</b>.`,
+    starter:`veta = input()\n`,
+    stdin:'ahoj jak se mas',
+    solution:`veta = input()\nprint(veta.upper())\nprint(veta.replace(" ", "_"))\nprint(veta.count("a"))\n`,
+    tests:[{in:'ahoj jak se mas',out:'AHOJ JAK SE MAS\nahoj_jak_se_mas\n3'},{in:'python',out:'PYTHON\npython\n0'}],
+    must:['upper\\(','replace\\(','count\\('],
+    hint:'Tři řádky print: veta.upper(), veta.replace(" ", "_"), veta.count("a").'},
+  { id:'py6l4', title:'split a join',
+    theory:`<p><code>split()</code> udělá z textu seznam slov. <code>join</code> je opak, slepí seznam do textu:</p>
+<pre>slova = "a b c".split()      # ['a', 'b', 'c']
+"-".join(slova)              # 'a-b-c'
+slova[::-1]                  # ['c', 'b', 'a']</pre>`,
+    task:`Načti větu. Vypiš počet slov a na další řádek slova v obráceném pořadí, oddělená mezerou.`,
+    starter:`veta = input()\n`,
+    stdin:'jedna dva tri',
+    solution:`veta = input()\nslova = veta.split()\nprint(len(slova))\nprint(" ".join(slova[::-1]))\n`,
+    tests:[{in:'jedna dva tri',out:'3\ntri dva jedna'},{in:'ahoj',out:'1\nahoj'}],
+    must:['split\\(','join\\('],
+    hint:'slova = veta.split(), pak " ".join(slova[::-1]).'},
+  { id:'py6l5', title:'in a endswith',
+    theory:`<p><code>in</code> zjistí, jestli text obsahuje jiný text. <code>startswith</code> a <code>endswith</code> kontrolují začátek a konec:</p>
+<pre>"@" in "tom@seznam.cz"            # True
+"tom@seznam.cz".endswith(".cz")   # True</pre>`,
+    task:`Načti e-mail. Když obsahuje <b>@</b> a končí na <b>.cz</b>, vypiš <b>Platný český e-mail</b>, jinak <b>Neplatný</b>.`,
+    starter:`email = input()\n`,
+    stdin:'tom@seznam.cz',
+    solution:`email = input()\nif "@" in email and email.endswith(".cz"):\n    print("Platný český e-mail")\nelse:\n    print("Neplatný")\n`,
+    tests:[{in:'tom@seznam.cz',out:'Platný český e-mail'},{in:'tom.seznam.cz',out:'Neplatný'},{in:'tom@gmail.com',out:'Neplatný'}],
+    must:['\\bin\\b','endswith\\('],
+    hint:'if "@" in email and email.endswith(".cz"):'},
+  { id:'py6l6', title:'Počítání znaků',
+    theory:`<p>Cyklus <code>for</code> projde text znak po znaku:</p>
+<pre>for znak in "ahoj":
+    print(znak)</pre>
+<p>S <code>in</code> zjistíš, jestli je znak v nějaké skupině: <code>if znak in "aeiou":</code></p>`,
+    task:`Načti text a spočítej samohlásky (a e i o u y, i s čárkami: á é ě í ó ú ů ý). Velikost písmen nerozhoduje.`,
+    starter:`text = input()\npocet = 0\n\nprint(pocet)\n`,
+    stdin:'Ahoj světe',
+    solution:`text = input()\npocet = 0\nfor znak in text.lower():\n    if znak in "aeiouyáéěíóúůý":\n        pocet += 1\nprint(pocet)\n`,
+    tests:[{in:'Ahoj světe',out:'4'},{in:'Python',out:'2'},{in:'krk',out:'0'}],
+    must:['for '],
+    hint:'for znak in text.lower(): if znak in "aeiouyáéěíóúůý": pocet += 1'},
+  ]
+},
+{
+  id:'py7', title:'Funkce', icon:'🧩', color:'#20c997',
+  desc:'def, return, výchozí parametry, rekurze.',
+  lessons:[
+  { id:'py7l1', title:'def',
+    theory:`<p>Funkce je pojmenovaný kus kódu, který můžeš spustit kolikrát chceš:</p>
+<pre>def pozdrav(jmeno):
+    print(f"Ahoj, {jmeno}!")
+
+pozdrav("Tom")
+pozdrav("Eva")</pre>
+<p>Funkci musíš definovat dřív, než ji zavoláš.</p>`,
+    task:`Napiš funkci <code>pozdrav(jmeno)</code>, která vypíše <b>Ahoj, JMÉNO!</b>. Zavolej ji pro <b>Tom</b> a pak pro <b>Eva</b>.`,
+    starter:`# def pozdrav(jmeno):\n\n`,
+    solution:`def pozdrav(jmeno):\n    print(f"Ahoj, {jmeno}!")\n\npozdrav("Tom")\npozdrav("Eva")\n`,
+    tests:[{in:'',out:'Ahoj, Tom!\nAhoj, Eva!'}],
+    must:['def pozdrav\\(','pozdrav\\("Tom"\\)|pozdrav\\(\'Tom\'\\)'],
+    hint:'Tělo funkce odsaď. Pak dva řádky pozdrav("Tom") a pozdrav("Eva").'},
+  { id:'py7l2', title:'return',
+    theory:`<p><code>return</code> vrátí výsledek tomu, kdo funkci zavolal. Funkce nic nevypisuje, jen počítá:</p>
+<pre>def ctverec(x):
+    return x * x
+
+vysledek = ctverec(4)   # 16</pre>`,
+    task:`Napiš funkci <code>obsah(a, b)</code>, která <b>vrátí</b> obsah obdélníku. Načti dvě čísla a vypiš výsledek funkce.`,
+    starter:`def obsah(a, b):\n    pass\n\na = int(input())\nb = int(input())\n`,
+    stdin:'3\n4',
+    solution:`def obsah(a, b):\n    return a * b\n\na = int(input())\nb = int(input())\nprint(obsah(a, b))\n`,
+    tests:[{in:'3\n4',out:'12'},{in:'10\n1',out:'10'}],
+    must:['def obsah','return'],
+    hint:'Místo pass napiš return a * b. Pak print(obsah(a, b)).'},
+  { id:'py7l3', title:'Výchozí parametry',
+    theory:`<p>Parametr může mít výchozí hodnotu. Když ho při volání vynecháš, použije se ona:</p>
+<pre>def pozdrav(jmeno, pozdrav="Ahoj"):
+    print(f"{pozdrav}, {jmeno}!")
+
+pozdrav("Tom")            # Ahoj, Tom!
+pozdrav("Tom", "Čau")     # Čau, Tom!</pre>`,
+    task:`Napiš <code>mocnina(x, n=2)</code>, která vrátí <code>x</code> na <code>n</code>-tou. Načti <code>x</code>. Vypiš <code>mocnina(x)</code> a pod to <code>mocnina(x, 3)</code>.`,
+    starter:`x = int(input())\n`,
+    stdin:'3',
+    solution:`def mocnina(x, n=2):\n    return x ** n\n\nx = int(input())\nprint(mocnina(x))\nprint(mocnina(x, 3))\n`,
+    tests:[{in:'3',out:'9\n27'},{in:'2',out:'4\n8'}],
+    must:['def mocnina\\(\\s*x\\s*,\\s*n\\s*=\\s*2\\s*\\)'],
+    hint:'def mocnina(x, n=2): return x ** n'},
+  { id:'py7l4', title:'Funkce, která odpovídá ano/ne',
+    theory:`<p>Funkce může vracet <code>True</code> nebo <code>False</code>. Pak se dobře používá v <code>if</code>:</p>
+<pre>def je_sude(n):
+    return n % 2 == 0
+
+if je_sude(4):
+    print("sudé")</pre>
+<p>Prvočíslo je větší než 1 a dělí se jen 1 a samo sebou.</p>`,
+    task:`Napiš <code>je_prvocislo(n)</code>. Načti <code>n</code> a vypiš všechna prvočísla od 2 do <code>n</code> na jeden řádek, oddělená mezerou.`,
+    starter:`def je_prvocislo(n):\n    pass\n\nn = int(input())\n`,
+    stdin:'10',
+    solution:`def je_prvocislo(n):\n    if n < 2:\n        return False\n    for d in range(2, n):\n        if n % d == 0:\n            return False\n    return True\n\nn = int(input())\nprvocisla = []\nfor i in range(2, n + 1):\n    if je_prvocislo(i):\n        prvocisla.append(i)\nprint(*prvocisla)\n`,
+    tests:[{in:'10',out:'2 3 5 7'},{in:'2',out:'2'},{in:'20',out:'2 3 5 7 11 13 17 19'}],
+    must:['def je_prvocislo','return','je_prvocislo\\(\\s*i'],
+    hint:'Ve funkci zkus dělitele od 2 do n - 1. Když nějaký dělí beze zbytku, return False. Na konci return True.'},
+  { id:'py7l5', title:'Víc výsledků naráz',
+    theory:`<p>Funkce může vrátit víc hodnot oddělených čárkou. Přijdou jako <b>tuple</b> a rovnou je rozbalíš:</p>
+<pre>def deleni(a, b):
+    return a // b, a % b
+
+podil, zbytek = deleni(17, 5)   # 3, 2</pre>`,
+    task:`Napiš <code>min_max(cisla)</code>, která vrátí nejmenší a největší číslo. Načti řádek čísel a vypiš třeba <b>Min: 1, Max: 9</b>.`,
+    starter:`def min_max(cisla):\n    pass\n\ncisla = []\nfor x in input().split():\n    cisla.append(int(x))\n`,
+    stdin:'3 9 1 7',
+    solution:`def min_max(cisla):\n    return min(cisla), max(cisla)\n\ncisla = []\nfor x in input().split():\n    cisla.append(int(x))\nmn, mx = min_max(cisla)\nprint(f"Min: {mn}, Max: {mx}")\n`,
+    tests:[{in:'3 9 1 7',out:'Min: 1, Max: 9'},{in:'5',out:'Min: 5, Max: 5'}],
+    must:['def min_max','return .*,'],
+    hint:'return min(cisla), max(cisla). Pak mn, mx = min_max(cisla).'},
+  { id:'py7l6', title:'Rekurze',
+    theory:`<p>Rekurzivní funkce volá sama sebe. Potřebuje <b>základní případ</b>, kdy se zastaví:</p>
+<pre>def odpocet(n):
+    if n == 0:          # základní případ
+        print("Start!")
+        return
+    print(n)
+    odpocet(n - 1)</pre>
+<p>Faktoriál: <code>5! = 5 × 4 × 3 × 2 × 1</code>, a <code>0! = 1</code>.</p>`,
+    task:`Napiš rekurzivní <code>faktorial(n)</code>. Načti <code>n</code> a vypiš výsledek.`,
+    starter:`def faktorial(n):\n    pass\n\nprint(faktorial(int(input())))\n`,
+    stdin:'5',
+    solution:`def faktorial(n):\n    if n == 0:\n        return 1\n    return n * faktorial(n - 1)\n\nprint(faktorial(int(input())))\n`,
+    tests:[{in:'5',out:'120'},{in:'0',out:'1'},{in:'10',out:'3628800'}],
+    must:['def faktorial','faktorial\\(\\s*n\\s*-\\s*1\\s*\\)'],
+    hint:'Když n == 0, vrať 1. Jinak vrať n * faktorial(n - 1).'},
+  ]
+},
+{
+  id:'py8', title:'Slovníky a množiny', icon:'📚', color:'#748ffc',
+  desc:'dict, počítání, set a tuple. Na konci projekt Sklad.',
+  lessons:[
+  { id:'py8l1', title:'Slovník',
+    theory:`<p>Slovník (<code>dict</code>) přiřazuje hodnoty ke <b>klíčům</b>. Píše se do složených závorek:</p>
+<pre>ceny = {"jablko": 12, "rohlík": 3}
+ceny["jablko"]        # 12
+"hruška" in ceny      # False</pre>
+<p>Když klíč neexistuje, <code>ceny["hruška"]</code> skončí chybou <code>KeyError</code>. Proto se nejdřív ptej přes <code>in</code>.</p>`,
+    task:`Máš slovník <code>telefony</code>. Načti jméno a vypiš jeho číslo. Když jméno ve slovníku není, vypiš <b>Neznámý kontakt</b>.`,
+    starter:`telefony = {"Tom": "777 111 222", "Eva": "603 555 444", "Petr": "720 000 999"}\n`,
+    stdin:'Eva',
+    solution:`telefony = {"Tom": "777 111 222", "Eva": "603 555 444", "Petr": "720 000 999"}\njmeno = input()\nif jmeno in telefony:\n    print(telefony[jmeno])\nelse:\n    print("Neznámý kontakt")\n`,
+    tests:[{in:'Eva',out:'603 555 444'},{in:'Tom',out:'777 111 222'},{in:'Jana',out:'Neznámý kontakt'}],
+    must:['\\bin\\s+telefony'],
+    hint:'if jmeno in telefony: print(telefony[jmeno]) else: ...'},
+  { id:'py8l2', title:'Přidávání a procházení',
+    theory:`<p>Nový klíč přidáš přiřazením. <code>items()</code> projde dvojice klíč a hodnota:</p>
+<pre>body = {}
+body["Tom"] = 10
+for jmeno, b in body.items():
+    print(jmeno, b)</pre>
+<p><code>sorted(body)</code> dá klíče seřazené podle abecedy.</p>`,
+    task:`Na vstupu je počet hráčů <code>n</code> a pak <code>n</code> řádků <code>jméno body</code>. Ulož je do slovníku a vypiš <b>jméno: body</b> seřazené podle jména.`,
+    starter:`n = int(input())\nbody = {}\n`,
+    stdin:'3\nTom 10\nAda 7\nEva 12',
+    solution:`n = int(input())\nbody = {}\nfor i in range(n):\n    jmeno, b = input().split()\n    body[jmeno] = int(b)\nfor jmeno in sorted(body):\n    print(f"{jmeno}: {body[jmeno]}")\n`,
+    tests:[{in:'3\nTom 10\nAda 7\nEva 12',out:'Ada: 7\nEva: 12\nTom: 10'},{in:'1\nZoe 0',out:'Zoe: 0'}],
+    must:['sorted\\(','\\]\\s*=\\s*'],
+    hint:'jmeno, b = input().split() rozdělí řádek na dvě části. Pak body[jmeno] = int(b).'},
+  { id:'py8l3', title:'Počítání slov',
+    theory:`<p><code>get(klíč, výchozí)</code> vrátí hodnotu, nebo výchozí, když klíč chybí. Ideální na počítání:</p>
+<pre>pocty = {}
+for slovo in ["a", "b", "a"]:
+    pocty[slovo] = pocty.get(slovo, 0) + 1
+# {'a': 2, 'b': 1}</pre>
+<p>Slovník si pamatuje pořadí, v jakém jsi klíče přidal.</p>`,
+    task:`Načti větu. Pro každé slovo vypiš <b>slovo: počet</b>, v pořadí, v jakém se slova poprvé objevila.`,
+    starter:`veta = input()\npocty = {}\n`,
+    stdin:'pes kočka pes myš pes',
+    solution:`veta = input()\npocty = {}\nfor slovo in veta.split():\n    pocty[slovo] = pocty.get(slovo, 0) + 1\nfor slovo, pocet in pocty.items():\n    print(f"{slovo}: {pocet}")\n`,
+    tests:[{in:'pes kočka pes myš pes',out:'pes: 3\nkočka: 1\nmyš: 1'},{in:'a a a',out:'a: 3'}],
+    must:['get\\('],
+    hint:'pocty[slovo] = pocty.get(slovo, 0) + 1, pak for slovo, pocet in pocty.items().'},
+  { id:'py8l4', title:'Množiny',
+    theory:`<p>Množina (<code>set</code>) drží každou hodnotu <b>jen jednou</b> a nemá pořadí:</p>
+<pre>set(["a", "b", "a"])     # {'a', 'b'}
+{1, 2, 3} & {2, 3, 4}    # {2, 3}  průnik
+{1, 2} | {2, 5}          # {1, 2, 5}  sjednocení</pre>
+<p>Na výpis ji seřaď: <code>sorted(mnozina)</code> vrátí seznam.</p>`,
+    task:`Načti dva řádky slov. Vypiš slova, která jsou v obou řádcích, seřazená podle abecedy a oddělená mezerou. Když žádné není, vypiš <b>Nic společného</b>.`,
+    starter:`a = input().split()\nb = input().split()\n`,
+    stdin:'pes kočka myš\nmyš slon pes',
+    solution:`a = input().split()\nb = input().split()\nspolecna = set(a) & set(b)\nif spolecna:\n    print(*sorted(spolecna))\nelse:\n    print("Nic společného")\n`,
+    tests:[{in:'pes kočka myš\nmyš slon pes',out:'myš pes'},{in:'a b\nc d',out:'Nic společného'},{in:'x x y\nx',out:'x'}],
+    must:['set\\('],
+    hint:'set(a) & set(b), pak print(*sorted(...)).'},
+  { id:'py8l5', title:'Tuple',
+    theory:`<p><b>Tuple</b> je jako seznam, jen se nedá měnit. Píše se do kulatých závorek a hodí se na pevné dvojice, třeba souřadnice:</p>
+<pre>bod = (3, 4)
+x, y = bod            # rozbalení
+body = [(0, 1), (2, 2)]</pre>`,
+    task:`Načti počet bodů <code>n</code> a pak <code>n</code> řádků <code>x y</code>. Ulož body jako tuple do seznamu. Vypiš bod nejblíž počátku (nejmenší <code>x*x + y*y</code>) ve tvaru <b>Nejblíž: (1, 1)</b>.`,
+    starter:`n = int(input())\nbody = []\n`,
+    stdin:'3\n3 4\n1 1\n-2 0',
+    solution:`n = int(input())\nbody = []\nfor i in range(n):\n    x, y = input().split()\n    body.append((int(x), int(y)))\nnejblizsi = body[0]\nfor bod in body:\n    x, y = bod\n    if x * x + y * y < nejblizsi[0] ** 2 + nejblizsi[1] ** 2:\n        nejblizsi = bod\nprint(f"Nejblíž: {nejblizsi}")\n`,
+    tests:[{in:'3\n3 4\n1 1\n-2 0',out:'Nejblíž: (1, 1)'},{in:'1\n5 5',out:'Nejblíž: (5, 5)'},{in:'2\n0 -3\n2 2',out:'Nejblíž: (2, 2)'}],
+    must:['append\\(\\s*\\('],
+    hint:'body.append((int(x), int(y))) se dvěma závorkami. Pak hledej minimum cyklem jako u max/min.'},
+  { id:'py8p1', title:'Sklad', project:true,
+    theory:`<p>🏁 <b>Projekt.</b> Malý skladový program. Použiješ slovník, <code>split</code>, cykly a podmínky.</p>
+<p>Příkazy:</p>
+<ul><li><code>pridej věc počet</code>: přidá kusy</li>
+<li><code>odeber věc počet</code>: odebere kusy. Když jich není dost, vypíše <b>Nedostatek: věc</b> a nic nezmění. Když jich zbude 0, věc ze skladu zmizí.</li>
+<li><code>stav</code>: vypíše věci seřazené podle jména jako <b>věc: počet</b>, nebo <b>Sklad je prázdný</b>.</li></ul>`,
+    task:`Na prvním řádku je počet příkazů, pak příkazy. Proveď je.`,
+    starter:`n = int(input())\nsklad = {}\nfor i in range(n):\n    casti = input().split()\n`,
+    stdin:'5\npridej jablko 3\npridej hruška 2\nodeber jablko 1\nodeber hruška 5\nstav',
+    solution:`n = int(input())\nsklad = {}\nfor i in range(n):\n    casti = input().split()\n    prikaz = casti[0]\n    if prikaz == "pridej":\n        vec, pocet = casti[1], int(casti[2])\n        sklad[vec] = sklad.get(vec, 0) + pocet\n    elif prikaz == "odeber":\n        vec, pocet = casti[1], int(casti[2])\n        if sklad.get(vec, 0) < pocet:\n            print(f"Nedostatek: {vec}")\n        else:\n            sklad[vec] -= pocet\n            if sklad[vec] == 0:\n                del sklad[vec]\n    elif prikaz == "stav":\n        if not sklad:\n            print("Sklad je prázdný")\n        for vec in sorted(sklad):\n            print(f"{vec}: {sklad[vec]}")\n`,
+    tests:[
+      {in:'5\npridej jablko 3\npridej hruška 2\nodeber jablko 1\nodeber hruška 5\nstav',out:'Nedostatek: hruška\nhruška: 2\njablko: 2'},
+      {in:'3\npridej mléko 1\nodeber mléko 1\nstav',out:'Sklad je prázdný'},
+      {in:'4\nstav\npridej rohlík 5\npridej rohlík 5\nstav',out:'Sklad je prázdný\nrohlík: 10'},
+      {in:'2\nodeber sýr 1\nstav',out:'Nedostatek: sýr\nSklad je prázdný'}],
+    must:['get\\(|\\bin\\s+sklad','sorted\\('],
+    hint:'Podle casti[0] rozhodni, co dělat. Na nulu zkontroluj po odebrání a smaž přes del sklad[vec].'},
+  ]
+}
 ];
 
 const REVIEW_PY = {
@@ -352,6 +703,37 @@ py4: [
   {q:`Jaká čísla dá <code>range(10, 0, -3)</code>?`, o:[`10 7 4 1`,`10 7 4 1 0`,`9 6 3`], a:0, e:`Krok -3 jde dolů, 0 už se nezahrne.`},
   {q:`Co udělá <code>continue</code>?`, o:[`Ukončí cyklus`,`Přeskočí zbytek kola a jde na další`,`Zopakuje stejné kolo`], a:1, e:`<code>break</code> ukončí, <code>continue</code> jen přeskočí.`},
   {q:`Kdy skončí <code>while True:</code>?`, o:[`Nikdy, pokud uvnitř není break`,`Po jednom kole`,`Hned`], a:0, e:`Podmínka <code>True</code> platí vždy, takže ven se dostaneš přes <code>break</code>.`},
+],
+py5: [
+  {q:`Co vypíše <code>print(c[-1])</code> pro <code>c = [4, 8, 15]</code>?`, o:[`4`,`15`,`Chybu`], a:1, e:`Index <code>-1</code> je poslední prvek.`},
+  {q:`Co udělá <code>c.append(5)</code>?`, o:[`Přidá 5 na konec`,`Přidá 5 na začátek`,`Vrátí nový seznam a c nezmění`], a:0, e:`<code>append</code> mění přímo seznam.`},
+  {q:`Co vrátí <code>"1 2 3".split()</code>?`, o:[`[1, 2, 3]`,`['1', '2', '3']`,`'123'`], a:1, e:`<code>split</code> vrací seznam textů. Na čísla je převeď přes <code>int()</code>.`},
+  {q:`Co je <code>c[:2]</code> pro <code>c = [9, 7, 5, 3]</code>?`, o:[`[9, 7]`,`[9, 7, 5]`,`[5, 3]`], a:0, e:`Výřez do indexu 2 bez něj: prvky 0 a 1.`},
+],
+py6: [
+  {q:`Co je <code>"Python"[::-1]</code>?`, o:[`Python`,`nohtyP`,`P`], a:1, e:`Krok -1 projde text pozpátku.`},
+  {q:`Co vrátí <code>"ahoj".upper()</code>, a změní se původní text?`, o:[`AHOJ, a původní se změní`,`AHOJ, původní zůstane`,`Ahoj`], a:1, e:`Texty se nedají měnit. Metody vrací nový text.`},
+  {q:`Co vrátí <code>"-".join(["a", "b", "c"])</code>?`, o:[`a-b-c`,`-a-b-c-`,`['a-b-c']`], a:0, e:`<code>join</code> vloží oddělovač mezi prvky.`},
+  {q:`Co vrátí <code>"lo" in "Hello"</code>?`, o:[`True`,`False`,`3`], a:0, e:`<code>in</code> hledá kus textu kdekoliv uvnitř.`},
+],
+py7: [
+  {q:`Co vypíše tenhle kód?<pre>def f(x):
+    print(x * 2)
+
+y = f(3)
+print(y)</pre>`, o:[`6 a pak 6`,`6 a pak None`,`Jen 6`], a:1, e:`Funkce bez <code>return</code> vrací <code>None</code>.`},
+  {q:`Jak zavoláš <code>def mocnina(x, n=2)</code>, aby vrátila x na třetí?`, o:[`mocnina(x)`,`mocnina(x, 3)`,`mocnina(3, x)`], a:1, e:`Výchozí <code>n=2</code> přepíšeš druhým parametrem.`},
+  {q:`Co bude v <code>a</code> a <code>b</code>?<pre>def f():
+    return 1, 2
+
+a, b = f()</pre>`, o:[`a = 1, b = 2`,`a = (1, 2), b = None`,`Chyba`], a:0, e:`Vrácený tuple se rozbalí do dvou proměnných.`},
+  {q:`Co se stane s rekurzivní funkcí bez základního případu?`, o:[`Vrátí 0`,`Skončí chybou RecursionError`,`Nic`], a:1, e:`Volá se pořád dokola, dokud Python nezastaví.`},
+],
+py8: [
+  {q:`Co vrátí <code>d.get("x", 0)</code>, když klíč <code>"x"</code> ve slovníku není?`, o:[`Chybu KeyError`,`0`,`None`], a:1, e:`Druhý parametr <code>get</code> je výchozí hodnota.`},
+  {q:`Co vypíše <code>len(set([1, 1, 2, 2, 2]))</code>?`, o:[`5`,`2`,`3`], a:1, e:`Množina si každou hodnotu pamatuje jen jednou.`},
+  {q:`Co dělá <code>for k, v in d.items():</code>?`, o:[`Projde jen klíče`,`Projde dvojice klíč a hodnota`,`Projde jen hodnoty`], a:1, e:`<code>items()</code> dává dvojice. Samotné <code>for k in d</code> dá jen klíče.`},
+  {q:`Jaký je hlavní rozdíl mezi tuple a seznamem?`, o:[`Tuple se nedá měnit`,`Tuple umí jen čísla`,`Žádný`], a:0, e:`Tuple je pevný, hodí se na souřadnice a dvojice.`},
 ],
 };
 COURSE_PY.forEach(w => {
