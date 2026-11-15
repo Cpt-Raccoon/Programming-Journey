@@ -730,6 +730,256 @@ for (Pes&amp; p : smecka) p.stekej();</pre>
     must:['class','vector'],
     hint:'Odebrání z vectoru: utulek.erase(utulek.begin() + i); Najdi index i cyklem podle jména.'},
   ]
+},
+{
+  id:'w13', title:'Dynamická paměť', icon:'🧠', color:'#b197fc', gxx:true,
+  desc:'Paměť, o kterou si řekneš za běhu: new, delete a chytré ukazatele.',
+  lessons:[
+  { id:'w13l1', title:'new a delete',
+    theory:`<p>Normální proměnná zmizí na konci bloku. Paměť z <code>new</code> žije, dokud ji sám neuvolníš přes <code>delete</code>.</p>
+<pre>int* p = new int(5);   // nové číslo v paměti
+cout &lt;&lt; *p;            // 5
+delete p;              // vrátit paměť</pre>
+<p>Zapomenutý <code>delete</code> = <b>únik paměti</b>. Program si bere paměť a nevrací ji.</p>`,
+    task:'Vytvoř přes <code>new</code> číslo, načti do něj hodnotu ze vstupu, vypiš její druhou mocninu a paměť uvolni přes <code>delete</code>.<br>Pro <code>7</code>: <code>49</code>',
+    starter: H+'int main() {\n    \n    return 0;\n}\n',
+    stdin:'7',
+    solution: H+'int main() {\n    int* p = new int;\n    cin >> *p;\n    cout << (*p) * (*p);\n    delete p;\n    return 0;\n}\n',
+    tests:[{in:'7',out:'49'},{in:'-3',out:'9'},{in:'0',out:'0'}], must:['new','delete'],
+    hint:'int* p = new int; cin >> *p; pak cout << *p * *p; a nakonec delete p;'},
+  { id:'w13l2', title:'Dynamické pole',
+    theory:`<p>Pole s velikostí, kterou zjistíš až za běhu:</p>
+<pre>int n;
+cin &gt;&gt; n;
+int* pole = new int[n];
+// ... používáš pole[0] až pole[n-1]
+delete[] pole;         // u pole delete s [ ]</pre>
+<p>V praxi na tohle máš <code>vector</code>, ale je dobré vědět, co dělá uvnitř.</p>`,
+    task:'Načti n, vytvoř dynamické pole n čísel, načti je a vypiš je <b>pozpátku</b> oddělené mezerou. Nezapomeň na <code>delete[]</code>.<br>Pro <code>3</code> a <code>1 2 3</code>: <code>3 2 1</code>',
+    starter: H+'int main() {\n    int n;\n    cin >> n;\n    \n    return 0;\n}\n',
+    stdin:'3\n1 2 3',
+    solution: H+'int main() {\n    int n;\n    cin >> n;\n    int* pole = new int[n];\n    for (int i = 0; i < n; i++) cin >> pole[i];\n    for (int i = n - 1; i >= 0; i--) {\n        cout << pole[i];\n        if (i > 0) cout << " ";\n    }\n    delete[] pole;\n    return 0;\n}\n',
+    tests:[{in:'3\n1 2 3',out:'3 2 1'},{in:'1\n9',out:'9'},{in:'5\n5 4 3 2 1',out:'1 2 3 4 5'}], must:['new\\s+int\\s*\\[','delete\\s*\\[\\s*\\]'],
+    hint:'int* pole = new int[n]; ... a na konci delete[] pole;'},
+  { id:'w13l3', title:'Chytrý ukazatel – unique_ptr',
+    theory:`<p>Moderní C++ ti <code>delete</code> pohlídá samo. <code>unique_ptr</code> uvolní paměť, když zanikne (z <code>&lt;memory&gt;</code>):</p>
+<pre>#include &lt;memory&gt;
+unique_ptr&lt;int&gt; p = make_unique&lt;int&gt;(5);
+cout &lt;&lt; *p;
+// žádný delete, uklidí se samo</pre>
+<p>Pravidlo pro praxi: místo <code>new</code> a <code>delete</code> používej <code>make_unique</code>.</p>`,
+    task:'Struktura <b>Bod</b> má x a y. Vytvoř ho přes <code>make_unique</code>, načti x a y, posuň bod o +1 v obou osách a vypiš <b>(x, y)</b>.<br>Pro <code>2 5</code>: <code>(3, 6)</code>',
+    starter: '#include <iostream>\n#include <memory>\nusing namespace std;\n\nstruct Bod {\n    int x;\n    int y;\n};\n\nint main() {\n    \n    return 0;\n}\n',
+    stdin:'2 5',
+    solution: '#include <iostream>\n#include <memory>\nusing namespace std;\n\nstruct Bod {\n    int x;\n    int y;\n};\n\nint main() {\n    unique_ptr<Bod> b = make_unique<Bod>();\n    cin >> b->x >> b->y;\n    b->x++;\n    b->y++;\n    cout << "(" << b->x << ", " << b->y << ")";\n    return 0;\n}\n',
+    tests:[{in:'2 5',out:'(3, 6)'},{in:'-1 -1',out:'(0, 0)'}], must:['make_unique'],
+    hint:'Přes ukazatel se ke členům dostaneš šipkou: b->x. Vytvoření: auto b = make_unique<Bod>();'},
+  ]
+},
+{
+  id:'w14', title:'Soubory', icon:'💾', color:'#ffa8a8', gxx:true,
+  desc:'Ukládání a čtení dat ze souborů.',
+  lessons:[
+  { id:'w14l1', title:'Zápis do souboru',
+    theory:`<p>Soubor otevřeš pro zápis přes <code>ofstream</code> (z <code>&lt;fstream&gt;</code>). Píšeš do něj stejně jako do <code>cout</code>:</p>
+<pre>#include &lt;fstream&gt;
+ofstream f("poznamky.txt");
+f &lt;&lt; "Ahoj souboru!" &lt;&lt; endl;
+f.close();</pre>
+<p>Čtení funguje přes <code>ifstream</code> a <code>&gt;&gt;</code> nebo <code>getline</code>, stejně jako u <code>cin</code>.</p>`,
+    task:'Načti slovo ze vstupu a zapiš ho 3× do souboru <b>slovo.txt</b> (každé na řádek). Pak soubor otevři pro čtení a vypiš jeho obsah na obrazovku.',
+    starter: '#include <iostream>\n#include <fstream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    \n    return 0;\n}\n',
+    stdin:'pizza',
+    solution: '#include <iostream>\n#include <fstream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;\n    cin >> s;\n    ofstream out("slovo.txt");\n    for (int i = 0; i < 3; i++) out << s << endl;\n    out.close();\n\n    ifstream in("slovo.txt");\n    string radek;\n    while (getline(in, radek)) cout << radek << endl;\n    return 0;\n}\n',
+    tests:[{in:'pizza',out:'pizza\npizza\npizza'},{in:'C++',out:'C++\nC++\nC++'}], must:['ofstream','ifstream'],
+    hint:'Po zápisu zavolej out.close(), jinak se data nemusí stihnout zapsat. Čtení: while (getline(in, radek)) cout << radek << endl;'},
+  { id:'w14l2', title:'Čísla v souboru',
+    theory:`<p>Ze souboru čteš čísla jako z <code>cin</code>. Cyklus <code>while (in &gt;&gt; x)</code> skončí sám na konci souboru:</p>
+<pre>ifstream in("cisla.txt");
+int x, soucet = 0;
+while (in &gt;&gt; x) soucet += x;</pre>`,
+    task:'Načti ze vstupu n a n čísel a ulož je do souboru <b>cisla.txt</b>. Pak soubor přečti a vypiš <b>počet</b> čísel a jejich <b>součet</b> na dva řádky.<br>Pro <code>3</code> a <code>4 5 6</code>:<pre>3\n15</pre>',
+    starter: '#include <iostream>\n#include <fstream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    \n    return 0;\n}\n',
+    stdin:'3\n4 5 6',
+    solution: '#include <iostream>\n#include <fstream>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    ofstream out("cisla.txt");\n    for (int i = 0; i < n; i++) {\n        int x;\n        cin >> x;\n        out << x << " ";\n    }\n    out.close();\n\n    ifstream in("cisla.txt");\n    int x, pocet = 0, soucet = 0;\n    while (in >> x) {\n        pocet++;\n        soucet += x;\n    }\n    cout << pocet << endl << soucet << endl;\n    return 0;\n}\n',
+    tests:[{in:'3\n4 5 6',out:'3\n15'},{in:'0',out:'0\n0'},{in:'4\n-1 1 -1 10',out:'4\n9'}], must:['ofstream','ifstream'],
+    hint:'Nejdřív všechno zapiš a zavři soubor, teprve pak ho otevři přes ifstream a čti while (in >> x).'},
+  { id:'w14l3', title:'Deník – připsání na konec',
+    theory:`<p>Když otevřeš <code>ofstream</code> normálně, soubor se <b>přepíše</b>. Pro připsání na konec použij <code>ios::app</code>:</p>
+<pre>ofstream f("denik.txt", ios::app);
+f &lt;&lt; "nový záznam" &lt;&lt; endl;</pre>`,
+    task:'Načítej řádky ze vstupu. Každý řádek otevři soubor <b>denik.txt</b> s <code>ios::app</code>, připiš <b>N: řádek</b> (N je pořadí) a zavři ho. Nakonec soubor přečti a vypiš celý.',
+    starter: '#include <iostream>\n#include <fstream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string radek;\n    int n = 0;\n    \n    return 0;\n}\n',
+    stdin:'Ranni beh\nUcil jsem se C++\nPizza',
+    solution: '#include <iostream>\n#include <fstream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string radek;\n    int n = 0;\n    while (getline(cin, radek)) {\n        n++;\n        ofstream f("denik.txt", ios::app);\n        f << n << ": " << radek << endl;\n    }\n    ifstream in("denik.txt");\n    while (getline(in, radek)) cout << radek << endl;\n    return 0;\n}\n',
+    tests:[{in:'Ranni beh\nUcil jsem se C++\nPizza',out:'1: Ranni beh\n2: Ucil jsem se C++\n3: Pizza'},{in:'Jen jeden',out:'1: Jen jeden'}], must:['ios::app'],
+    hint:'Uvnitř while (getline(cin, radek)) vytvoř ofstream f("denik.txt", ios::app); Soubor se zavře sám na konci bloku.'},
+  ]
+},
+{
+  id:'w15', title:'Dědičnost', icon:'🧬', color:'#63e6be', gxx:true,
+  desc:'Třídy, které stavějí na jiných třídách, a polymorfismus.',
+  lessons:[
+  { id:'w15l1', title:'Rodič a potomek',
+    theory:`<p>Třída může <b>zdědit</b> data i metody z jiné třídy:</p>
+<pre>class Zvire {
+public:
+    string jmeno;
+    void spi() { cout &lt;&lt; jmeno &lt;&lt; " spí" &lt;&lt; endl; }
+};
+
+class Kocka : public Zvire {
+public:
+    void mnoukej() { cout &lt;&lt; jmeno &lt;&lt; ": Mňau" &lt;&lt; endl; }
+};</pre>
+<p><code>Kocka</code> má <code>jmeno</code> i <code>spi()</code> po rodiči a přidává vlastní <code>mnoukej()</code>.</p>`,
+    task:'Vytvoř třídu <b>Kocka</b>, která dědí ze <b>Zvire</b> a přidá metodu <code>mnoukej()</code>. Main načte jméno a zavolá <code>mnoukej()</code> a pak <code>spi()</code>.',
+    starter: HS+'class Zvire {\npublic:\n    string jmeno;\n    void spi() { cout << jmeno << " spí" << endl; }\n};\n\n// sem třídu Kocka\n\nint main() {\n    Kocka k;\n    cin >> k.jmeno;\n    k.mnoukej();\n    k.spi();\n    return 0;\n}\n',
+    stdin:'Micka',
+    solution: HS+'class Zvire {\npublic:\n    string jmeno;\n    void spi() { cout << jmeno << " spí" << endl; }\n};\n\nclass Kocka : public Zvire {\npublic:\n    void mnoukej() { cout << jmeno << ": Mňau" << endl; }\n};\n\nint main() {\n    Kocka k;\n    cin >> k.jmeno;\n    k.mnoukej();\n    k.spi();\n    return 0;\n}\n',
+    tests:[{in:'Micka',out:'Micka: Mňau\nMicka spí'},{in:'Tom',out:'Tom: Mňau\nTom spí'}], must:[':\\s*public\\s+Zvire'],
+    hint:'class Kocka : public Zvire { public: void mnoukej() { ... } };'},
+  { id:'w15l2', title:'virtual a override',
+    theory:`<p>Když má každý potomek dělat stejnou věc <b>jinak</b>, rodič označí metodu jako <code>virtual</code> a potomci ji přepíšou s <code>override</code>:</p>
+<pre>class Tvar {
+public:
+    virtual double obsah() { return 0; }
+};
+class Ctverec : public Tvar {
+public:
+    double a;
+    double obsah() override { return a * a; }
+};</pre>`,
+    task:'Doplň třídu <b>Kruh</b> (poloměr r, obsah = 3.14 · r · r) a <b>Obdelnik</b> (a, b). Main je načte a vypíše jejich obsahy přes funkci, která bere <code>Tvar&amp;</code>.<br>Pro <code>2</code> a <code>3 4</code>:<pre>12.56\n12</pre>',
+    starter: H+'class Tvar {\npublic:\n    virtual double obsah() { return 0; }\n};\n\n// sem Kruh a Obdelnik\n\nvoid vypis(Tvar& t) {\n    cout << t.obsah() << endl;\n}\n\nint main() {\n    Kruh k;\n    Obdelnik o;\n    cin >> k.r >> o.a >> o.b;\n    vypis(k);\n    vypis(o);\n    return 0;\n}\n',
+    stdin:'2\n3 4',
+    solution: H+'class Tvar {\npublic:\n    virtual double obsah() { return 0; }\n};\n\nclass Kruh : public Tvar {\npublic:\n    double r;\n    double obsah() override { return 3.14 * r * r; }\n};\n\nclass Obdelnik : public Tvar {\npublic:\n    double a, b;\n    double obsah() override { return a * b; }\n};\n\nvoid vypis(Tvar& t) {\n    cout << t.obsah() << endl;\n}\n\nint main() {\n    Kruh k;\n    Obdelnik o;\n    cin >> k.r >> o.a >> o.b;\n    vypis(k);\n    vypis(o);\n    return 0;\n}\n',
+    tests:[{in:'2\n3 4',out:'12.56\n12'},{in:'1\n2 2.5',out:'3.14\n5'}], must:['override'],
+    hint:'class Kruh : public Tvar { public: double r; double obsah() override { return 3.14 * r * r; } };'},
+  { id:'w15l3', title:'Polymorfismus v seznamu',
+    theory:`<p>Do jednoho seznamu můžeš dát různé potomky, když je držíš přes ukazatel na rodiče:</p>
+<pre>vector&lt;unique_ptr&lt;Zvire&gt;&gt; farma;
+farma.push_back(make_unique&lt;Pes&gt;());
+farma.push_back(make_unique&lt;Krava&gt;());
+for (auto&amp; z : farma) z-&gt;zvuk();   // každé svůj zvuk</pre>
+<p>Rodič s virtuálními metodami má mít <code>virtual ~Zvire() = default;</code>, aby se potomci správně uklidili.</p>`,
+    task:'Načítej slova <b>pes</b>, <b>krava</b>, <b>kachna</b>, dokud nepřijde <b>konec</b>. Každé ulož jako správného potomka do <code>vector&lt;unique_ptr&lt;Zvire&gt;&gt;</code>. Pak všechny nech vydat zvuk: <b>Haf</b>, <b>Bů</b>, <b>Kvák</b>.',
+    starter: '#include <iostream>\n#include <memory>\n#include <string>\n#include <vector>\nusing namespace std;\n\nclass Zvire {\npublic:\n    virtual ~Zvire() = default;\n    virtual void zvuk() = 0;   // = 0: každý potomek ji musí mít\n};\n\n// sem Pes, Krava, Kachna\n\nint main() {\n    vector<unique_ptr<Zvire>> farma;\n    string s;\n    \n    return 0;\n}\n',
+    stdin:'pes kachna krava pes konec',
+    solution: '#include <iostream>\n#include <memory>\n#include <string>\n#include <vector>\nusing namespace std;\n\nclass Zvire {\npublic:\n    virtual ~Zvire() = default;\n    virtual void zvuk() = 0;\n};\n\nclass Pes : public Zvire {\npublic:\n    void zvuk() override { cout << "Haf" << endl; }\n};\nclass Krava : public Zvire {\npublic:\n    void zvuk() override { cout << "Bů" << endl; }\n};\nclass Kachna : public Zvire {\npublic:\n    void zvuk() override { cout << "Kvák" << endl; }\n};\n\nint main() {\n    vector<unique_ptr<Zvire>> farma;\n    string s;\n    while (cin >> s && s != "konec") {\n        if (s == "pes") farma.push_back(make_unique<Pes>());\n        else if (s == "krava") farma.push_back(make_unique<Krava>());\n        else if (s == "kachna") farma.push_back(make_unique<Kachna>());\n    }\n    for (auto& z : farma) z->zvuk();\n    return 0;\n}\n',
+    tests:[{in:'pes kachna krava pes konec',out:'Haf\nKvák\nBů\nHaf'},{in:'konec',out:''},{in:'krava konec',out:'Bů'}], must:['unique_ptr','override'],
+    hint:'Tři malé třídy, každá s void zvuk() override. V cyklu podle slova push_back(make_unique<Pes>()) atd.'},
+  ]
+},
+{
+  id:'w16', title:'Knihovna STL', icon:'🧰', color:'#ffe066', gxx:true,
+  desc:'Hotové nástroje: map, set a třídění podle vlastního pravidla.',
+  lessons:[
+  { id:'w16l1', title:'map – slovník',
+    theory:`<p><code>map</code> ukládá dvojice <b>klíč → hodnota</b> a drží je seřazené podle klíče (z <code>&lt;map&gt;</code>):</p>
+<pre>map&lt;string, int&gt; vek;
+vek["Tom"] = 30;
+vek["Eva"] = 25;
+for (auto&amp; [jmeno, v] : vek)
+    cout &lt;&lt; jmeno &lt;&lt; " " &lt;&lt; v &lt;&lt; endl;</pre>
+<p>Když klíč neexistuje, <code>vek["X"]</code> ho vytvoří s hodnotou 0. Na počítání ideální.</p>`,
+    task:'Načítej slova až do konce vstupu a spočítej, kolikrát se které vyskytuje. Vypiš je abecedně jako <b>slovo: počet</b>.<br>Pro <code>pes kocka pes</code>:<pre>kocka: 1\npes: 2</pre>',
+    starter: '#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;\n\nint main() {\n    map<string, int> pocty;\n    string s;\n    \n    return 0;\n}\n',
+    stdin:'pes kocka pes',
+    solution: '#include <iostream>\n#include <map>\n#include <string>\nusing namespace std;\n\nint main() {\n    map<string, int> pocty;\n    string s;\n    while (cin >> s) pocty[s]++;\n    for (auto& [slovo, n] : pocty) cout << slovo << ": " << n << endl;\n    return 0;\n}\n',
+    tests:[{in:'pes kocka pes',out:'kocka: 1\npes: 2'},{in:'a b c a b a',out:'a: 3\nb: 2\nc: 1'}], must:['map<'],
+    hint:'while (cin >> s) pocty[s]++; a pak for (auto& [slovo, n] : pocty).'},
+  { id:'w16l2', title:'set – bez opakování',
+    theory:`<p><code>set</code> je množina: každá hodnota je v ní <b>jen jednou</b> a je seřazená (z <code>&lt;set&gt;</code>).</p>
+<pre>set&lt;int&gt; s = {3, 1, 3, 2};
+cout &lt;&lt; s.size();          // 3
+if (s.count(2)) cout &lt;&lt; "je tam";</pre>`,
+    task:'Načti n a n čísel. Vypiš na první řádek, kolik je <b>různých</b> čísel, a na druhý je vypiš seřazená a bez opakování.<br>Pro <code>6</code> a <code>5 1 5 3 1 5</code>:<pre>3\n1 3 5</pre>',
+    starter: '#include <iostream>\n#include <set>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    set<int> s;\n    \n    return 0;\n}\n',
+    stdin:'6\n5 1 5 3 1 5',
+    solution: '#include <iostream>\n#include <set>\nusing namespace std;\n\nint main() {\n    int n;\n    cin >> n;\n    set<int> s;\n    for (int i = 0; i < n; i++) {\n        int x;\n        cin >> x;\n        s.insert(x);\n    }\n    cout << s.size() << endl;\n    bool prvni = true;\n    for (int x : s) {\n        if (!prvni) cout << " ";\n        cout << x;\n        prvni = false;\n    }\n    return 0;\n}\n',
+    tests:[{in:'6\n5 1 5 3 1 5',out:'3\n1 3 5'},{in:'1\n7',out:'1\n7'},{in:'4\n2 2 2 2',out:'1\n2'}], must:['set<','insert'],
+    hint:'s.insert(x) pro každé číslo, pak s.size() a cyklus for (int x : s).'},
+  { id:'w16l3', title:'Třídění podle pravidla – lambda',
+    theory:`<p><code>sort</code> umí třídit podle tvého pravidla. Pravidlo zapíšeš jako <b>lambdu</b>, malou funkci přímo na místě:</p>
+<pre>sort(v.begin(), v.end(), [](int a, int b) {
+    return a &gt; b;      // větší dřív = sestupně
+});</pre>
+<p>Lambda vrací <code>true</code>, když má <code>a</code> být před <code>b</code>.</p>`,
+    task:'Načti n hráčů (jméno a body). Seřaď je podle bodů <b>sestupně</b>, při shodě bodů abecedně podle jména. Vypiš je jako <b>pořadí. jméno body</b>.<br>Pro <code>3</code> a <code>Eva 5 Tom 9 Ana 5</code>:<pre>1. Tom 9\n2. Ana 5\n3. Eva 5</pre>',
+    starter: '#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nstruct Hrac {\n    string jmeno;\n    int body;\n};\n\nint main() {\n    int n;\n    cin >> n;\n    vector<Hrac> h(n);\n    for (auto& x : h) cin >> x.jmeno >> x.body;\n    \n    return 0;\n}\n',
+    stdin:'3\nEva 5 Tom 9 Ana 5',
+    solution: '#include <iostream>\n#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nstruct Hrac {\n    string jmeno;\n    int body;\n};\n\nint main() {\n    int n;\n    cin >> n;\n    vector<Hrac> h(n);\n    for (auto& x : h) cin >> x.jmeno >> x.body;\n    sort(h.begin(), h.end(), [](const Hrac& a, const Hrac& b) {\n        if (a.body != b.body) return a.body > b.body;\n        return a.jmeno < b.jmeno;\n    });\n    for (int i = 0; i < n; i++) cout << i + 1 << ". " << h[i].jmeno << " " << h[i].body << endl;\n    return 0;\n}\n',
+    tests:[{in:'3\nEva 5 Tom 9 Ana 5',out:'1. Tom 9\n2. Ana 5\n3. Eva 5'},{in:'2\nB 1 A 1',out:'1. A 1\n2. B 1'}], must:['sort','\\[\\s*\\]\\s*\\('],
+    hint:'V lambdě: if (a.body != b.body) return a.body > b.body; jinak return a.jmeno < b.jmeno;'},
+  ]
+},
+{
+  id:'w17', title:'Výjimky, šablony a finále', icon:'🏆', color:'#ffd43b', gxx:true,
+  desc:'Ošetření chyb, obecný kód a závěrečný projekt kurzu.',
+  lessons:[
+  { id:'w17l1', title:'try a catch',
+    theory:`<p>Když se něco pokazí, funkce může <b>vyhodit výjimku</b>. Ty ji <b>chytíš</b> přes <code>try</code> a <code>catch</code> a program nespadne:</p>
+<pre>try {
+    int x = stoi("abc");   // text na číslo, tady selže
+} catch (const exception&amp; e) {
+    cout &lt;&lt; "Chyba!" &lt;&lt; endl;
+}</pre>
+<p><code>stoi</code> převádí string na int.</p>`,
+    task:'Načítej slova až do konce vstupu. Každé zkus převést přes <code>stoi</code> a přičíst k součtu. Když to nejde, vypiš <b>Nečíslo: SLOVO</b>. Nakonec vypiš <b>Součet: N</b>.',
+    starter: '#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;\n    int soucet = 0;\n    \n    return 0;\n}\n',
+    stdin:'10 pes 5 -3',
+    solution: '#include <iostream>\n#include <string>\nusing namespace std;\n\nint main() {\n    string s;\n    int soucet = 0;\n    while (cin >> s) {\n        try {\n            soucet += stoi(s);\n        } catch (const exception& e) {\n            cout << "Nečíslo: " << s << endl;\n        }\n    }\n    cout << "Součet: " << soucet << endl;\n    return 0;\n}\n',
+    tests:[{in:'10 pes 5 -3',out:'Nečíslo: pes\nSoučet: 12'},{in:'abc',out:'Nečíslo: abc\nSoučet: 0'},{in:'1 2 3',out:'Součet: 6'}], must:['try','catch','stoi'],
+    hint:'Uvnitř cyklu: try { soucet += stoi(s); } catch (const exception& e) { cout << ... }'},
+  { id:'w17l2', title:'Vlastní výjimka – throw',
+    theory:`<p>Výjimku můžeš vyhodit i sám přes <code>throw</code>:</p>
+<pre>double vydel(double a, double b) {
+    if (b == 0) throw runtime_error("Dělení nulou");
+    return a / b;
+}</pre>
+<p>V <code>catch</code> zjistíš zprávu přes <code>e.what()</code>. Potřebuješ <code>&lt;stdexcept&gt;</code>.</p>`,
+    task:'Dopiš funkci <b>vydel</b>, která při dělení nulou vyhodí <code>runtime_error("Dělení nulou")</code>. Main načítá dvojice čísel a vypisuje výsledek nebo <b>Chyba: ZPRÁVA</b>.',
+    starter: '#include <iostream>\n#include <stdexcept>\nusing namespace std;\n\ndouble vydel(double a, double b) {\n    // sem tvůj kód\n}\n\nint main() {\n    double a, b;\n    while (cin >> a >> b) {\n        try {\n            cout << vydel(a, b) << endl;\n        } catch (const exception& e) {\n            cout << "Chyba: " << e.what() << endl;\n        }\n    }\n    return 0;\n}\n',
+    stdin:'10 4\n1 0\n9 3',
+    solution: '#include <iostream>\n#include <stdexcept>\nusing namespace std;\n\ndouble vydel(double a, double b) {\n    if (b == 0) throw runtime_error("Dělení nulou");\n    return a / b;\n}\n\nint main() {\n    double a, b;\n    while (cin >> a >> b) {\n        try {\n            cout << vydel(a, b) << endl;\n        } catch (const exception& e) {\n            cout << "Chyba: " << e.what() << endl;\n        }\n    }\n    return 0;\n}\n',
+    tests:[{in:'10 4\n1 0\n9 3',out:'2.5\nChyba: Dělení nulou\n3'},{in:'0 0',out:'Chyba: Dělení nulou'}], must:['throw'],
+    hint:'if (b == 0) throw runtime_error("Dělení nulou"); return a / b;'},
+  { id:'w17l3', title:'Šablony – jeden kód pro všechny typy',
+    theory:`<p><b>Šablona</b> je funkce, která funguje pro libovolný typ. Typ se doplní sám podle toho, s čím ji zavoláš:</p>
+<pre>template &lt;typename T&gt;
+T vetsi(T a, T b) {
+    return a &gt; b ? a : b;
+}
+vetsi(3, 7);          // int
+vetsi(2.5, 1.5);      // double
+vetsi(string("a"), string("b"));</pre>
+<p>Takhle fungují i <code>vector&lt;T&gt;</code>, <code>map</code> a <code>sort</code> v knihovně.</p>`,
+    task:'Napiš šablonu <b>nejvetsi</b>, která dostane <code>const vector&lt;T&gt;&amp;</code> a vrátí největší prvek. Main ji zavolá na čísla i na slova.<br>Pro <code>3 9 2</code> a <code>pes auto zebra</code>:<pre>9\nzebra</pre>',
+    starter: '#include <iostream>\n#include <string>\n#include <vector>\nusing namespace std;\n\n// sem šablonu nejvetsi\n\nint main() {\n    vector<int> c(3);\n    vector<string> s(3);\n    for (auto& x : c) cin >> x;\n    for (auto& x : s) cin >> x;\n    cout << nejvetsi(c) << endl << nejvetsi(s) << endl;\n    return 0;\n}\n',
+    stdin:'3 9 2\npes auto zebra',
+    solution: '#include <iostream>\n#include <string>\n#include <vector>\nusing namespace std;\n\ntemplate <typename T>\nT nejvetsi(const vector<T>& v) {\n    T m = v[0];\n    for (const T& x : v) if (x > m) m = x;\n    return m;\n}\n\nint main() {\n    vector<int> c(3);\n    vector<string> s(3);\n    for (auto& x : c) cin >> x;\n    for (auto& x : s) cin >> x;\n    cout << nejvetsi(c) << endl << nejvetsi(s) << endl;\n    return 0;\n}\n',
+    tests:[{in:'3 9 2\npes auto zebra',out:'9\nzebra'},{in:'-5 -1 -9\nb a c',out:'-1\nc'}], must:['template'],
+    hint:'template <typename T> T nejvetsi(const vector<T>& v) { T m = v[0]; for (...) if (x > m) m = x; return m; }'},
+  { id:'w17p1', title:'🏁 Finále: Piškvorky', project:true,
+    theory:`<p>Závěrečný projekt kurzu! Naprogramuj piškvorky 3×3 pro dva hráče.</p>
+<p>Rozděl si to na malé kroky, nemusíš všechno naráz:</p>
+<ol><li>Pole 3×3 znaků, prázdné políčko je <code>.</code></li><li>Funkce, která pole vypíše</li><li>Funkce, která zjistí, jestli hráč vyhrál (3 řádky, 3 sloupce, 2 úhlopříčky)</li><li>Hlavní cyklus: tahy střídavě X a O</li></ol>`,
+    task:`Na vstupu jsou tahy <code>řádek sloupec</code> (1 až 3). Začíná <b>X</b>, hráči se střídají.<ul>
+<li>Když je políčko obsazené, vypiš <b>Obsazeno</b> a na tahu zůstává stejný hráč.</li>
+<li>Když někdo vyhraje, další tahy už neber.</li></ul>
+Na konci vypiš pole (3 řádky) a pak jedno z: <b>Vyhrál X</b>, <b>Vyhrál O</b>, <b>Remíza</b> (plné pole), <b>Hra pokračuje</b>.`,
+    starter: '#include <iostream>\nusing namespace std;\n\nchar pole[3][3];\n\nvoid vypis() {\n    // vypiš 3 řádky pole\n}\n\nbool vyhral(char h) {\n    // zkontroluj řádky, sloupce a úhlopříčky\n    return false;\n}\n\nint main() {\n    for (int r = 0; r < 3; r++)\n        for (int s = 0; s < 3; s++) pole[r][s] = \'.\';\n    \n    return 0;\n}\n',
+    stdin:'1 1\n2 2\n1 2\n3 3\n1 3',
+    solution: '#include <iostream>\nusing namespace std;\n\nchar pole[3][3];\n\nvoid vypis() {\n    for (int r = 0; r < 3; r++) {\n        for (int s = 0; s < 3; s++) cout << pole[r][s];\n        cout << endl;\n    }\n}\n\nbool vyhral(char h) {\n    for (int i = 0; i < 3; i++) {\n        if (pole[i][0] == h && pole[i][1] == h && pole[i][2] == h) return true;\n        if (pole[0][i] == h && pole[1][i] == h && pole[2][i] == h) return true;\n    }\n    if (pole[0][0] == h && pole[1][1] == h && pole[2][2] == h) return true;\n    if (pole[0][2] == h && pole[1][1] == h && pole[2][0] == h) return true;\n    return false;\n}\n\nint main() {\n    for (int r = 0; r < 3; r++)\n        for (int s = 0; s < 3; s++) pole[r][s] = \'.\';\n    char hrac = \'X\';\n    char vitez = 0;\n    int tahu = 0;\n    int r, s;\n    while (!vitez && cin >> r >> s) {\n        if (pole[r - 1][s - 1] != \'.\') {\n            cout << "Obsazeno" << endl;\n            continue;\n        }\n        pole[r - 1][s - 1] = hrac;\n        tahu++;\n        if (vyhral(hrac)) vitez = hrac;\n        hrac = (hrac == \'X\') ? \'O\' : \'X\';\n    }\n    vypis();\n    if (vitez) cout << "Vyhrál " << vitez << endl;\n    else if (tahu == 9) cout << "Remíza" << endl;\n    else cout << "Hra pokračuje" << endl;\n    return 0;\n}\n',
+    tests:[{in:'1 1\n2 2\n1 2\n3 3\n1 3',out:'XXX\n.O.\n..O\nVyhrál X'},
+           {in:'1 1\n1 1\n2 1\n1 2\n3 1\n2 2\n3 2\n3 3',out:'Obsazeno\nXX.\nOX.\nOOX\nVyhrál X'},
+           {in:'1 3\n1 1\n2 2\n3 1\n2 1\n2 3\n1 2\n3 2\n3 3',out:'OXX\nXXO\nOOX\nRemíza'},
+           {in:'2 2',out:'...\n.X.\n...\nHra pokračuje'},
+           {in:'1 1\n2 1\n1 2\n2 2\n3 3\n2 3\n1 3',out:'XX.\nOOO\n..X\nVyhrál O'}],
+    must:['vyhral','\\[3\\]\\s*\\[3\\]'],
+    hint:'Hlavní cyklus: while (!vitez && cin >> r >> s). Indexy pole jsou o 1 menší (r - 1, s - 1). Hráče prohodíš přes hrac = (hrac == \'X\') ? \'O\' : \'X\';'},
+  ]
 }
 ];
 if (typeof module !== 'undefined') module.exports = COURSE;
