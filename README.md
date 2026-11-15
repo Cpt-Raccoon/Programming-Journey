@@ -16,7 +16,7 @@ Další složky (`cpp/exercises/`, `cpp/projects/`, později `python/` a další
 
 ### Hotovo
 
-Světy 1 až 7 běží i v samostatném souboru (JSCPP v prohlížeči). Světy 8 až 12 potřebují server se skutečným g++.
+Světy 1 až 7 běží i v samostatném souboru (JSCPP v prohlížeči). Světy 8 až 17 potřebují server se skutečným g++.
 
 1. **První kroky:** cout, endl, komentáře, oprava chyb
 2. **Proměnné:** int, / a %, double, char, bool, cin, const
@@ -30,11 +30,15 @@ Světy 1 až 7 běží i v samostatném souboru (JSCPP v prohlížeči). Světy 
 10. **Vlastní typy:** struct, vector struktur, enum class
 11. **Reference:** kopie vs. reference, prohození, const&
 12. **Třídy a objekty:** metody, konstruktor, private, objekty ve vectoru, 🏁 projekt Zvířecí útulek
+13. **Dynamická paměť:** new a delete, dynamické pole, unique_ptr
+14. **Soubory:** ofstream a ifstream, čísla ze souboru, připisování (deník)
+15. **Dědičnost:** rodič a potomek, virtual a override, polymorfismus
+16. **STL:** map (počítání slov), set, sort s lambdou
+17. **Výjimky, šablony a finále:** try/catch, throw, šablona funkce, 🏁 projekt Piškvorky
 
 ### Dál (návrh)
 
-- Dynamická paměť (new/delete, chytré ukazatele), soubory (fstream), dědičnost a virtuální metody, šablony a STL (map, set), výjimky
-- Opakovací kvíz na konci každého světa, závěrečný projekt (např. konzolové piškvorky)
+- Opakovací kvíz na konci každého světa
 - Pak kurzy Python, Git a GitHub, GenAI, Machine Learning, UI/UX
 
 Zdroje: osnova kurzu C++ na Codédexu a kniha *Mistrovství v C++* (Stephen Prata).
