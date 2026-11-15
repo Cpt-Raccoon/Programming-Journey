@@ -67,7 +67,10 @@ Kurz běží jen na serveru (skutečný Python 3). Lekce jsou v `cpp/cppdex/less
 6. **Texty:** znaky, pozpátku a palindrom, metody, split a join, in a endswith
 7. **Funkce:** def, return, výchozí parametry, True/False, víc výsledků, rekurze
 8. **Slovníky a množiny:** dict, items a sorted, počítání slov, set, tuple, 🏁 projekt Sklad
+9. **Chyby a soubory:** try/except, víc výjimek, raise, zápis, připisování, chybějící soubor
+10. **Třídy a objekty:** class a __init__, metody, __str__, dědičnost, super(), 🏁 projekt Knihovna
+11. **Moduly a finále:** import math, from datetime, list comprehension, lambda, enumerate a zip, 🏁 finále Rozbor textu
 
 ### Dál (návrh)
 
-Chyby a soubory, třídy, moduly a závěrečný projekt. Bonusové lekce podle kódu projektu Quentin, až bude hotový.
+Bonusové lekce podle kódu projektu Quentin, až bude hotový.
